@@ -1,0 +1,14 @@
+/* ============================================================
+   NEXUS ADMIN — BASE
+   CSS reset + body defaults
+   ============================================================ */
+
+/* ── Reset ────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Base ─────────────────────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--canvas); color: var(--text); overflow-x: hidden; line-height: 1.6; }
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code { font-family: var(--font-mono); }

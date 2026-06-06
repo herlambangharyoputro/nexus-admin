@@ -1,0 +1,81 @@
+/* ============================================================
+   NEXUS ADMIN — DESIGN TOKENS
+   CSS variables: colors, spacing, typography, shadows, radius, sidebar dims
+   ============================================================ */
+
+/* ── Design Tokens (CSS Variables) ──────────────────────── */
+:root {
+  /* Brand Colors — hex fallback for older browsers (Safari <15.4, FF <113, Chrome <111) */
+  --primary:       #0093b4;
+  --primary-soft:  rgba(0, 147, 180, 0.12);
+  --primary-hover: #0080a1;
+  --amber:         #e49000;
+  --amber-soft:    rgba(228, 144, 0, 0.12);
+  --green:         #00ad5b;
+  --green-soft:    rgba(0, 173, 91, 0.12);
+  --red:           #de3b3d;
+  --red-soft:      rgba(222, 59, 61, 0.12);
+  --purple:        #ad87ed;
+  --purple-soft:   rgba(173, 135, 237, 0.12);
+
+  /* Surface */
+  --canvas:  #f7f8fa;
+  --card:    #ffffff;
+  --sidebar-bg: #0f1623;
+  --sidebar-accent: #1e2a3a;
+
+  /* Borders */
+  --border:  #e8eaed;
+  --border-focus: var(--primary);
+
+  /* Text */
+  --text:    #111827;
+  --muted:   #6b7280;
+  --text-inv: #e2e8f0;
+
+  /* Typography */
+  --font:    'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Spacing scale */
+  --s1: 4px;  --s2: 8px;  --s3: 12px;  --s4: 16px;
+  --s5: 20px; --s6: 24px; --s7: 28px;  --s8: 32px;
+
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius:    12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
+  --shadow:    0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 24px rgba(0,0,0,.10);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,.14);
+
+  /* Sidebar */
+  --sidebar-w: 260px;
+  --sidebar-w-collapsed: 68px;
+  --topbar-h: 64px;
+}
+
+/* ── Progressive Enhancement: oklch() for modern browsers ──
+   Browsers that support oklch() will override the hex fallbacks above.
+   Wider gamut on capable displays; identical-ish on sRGB displays.
+   ────────────────────────────────────────────────────────── */
+@supports (color: oklch(0% 0 0)) {
+  :root {
+    --primary:       oklch(58% 0.18 210);
+    --primary-soft:  oklch(58% 0.18 210 / 0.12);
+    --primary-hover: oklch(52% 0.18 210);
+    --amber:         oklch(72% 0.18 75);
+    --amber-soft:    oklch(72% 0.18 75 / 0.12);
+    --green:         oklch(65% 0.18 155);
+    --green-soft:    oklch(65% 0.18 155 / 0.12);
+    --red:           oklch(60% 0.2 25);
+    --red-soft:      oklch(60% 0.2 25 / 0.12);
+    --purple:        oklch(70% 0.15 300);
+    --purple-soft:   oklch(70% 0.15 300 / 0.12);
+  }
+}
