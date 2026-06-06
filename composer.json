@@ -1,0 +1,22 @@
+{
+    "name": "herlambangharyoputro/nexus-admin",
+    "description": "Nexus Admin - presentation layer (Blade views + pre-compiled assets) untuk Laravel.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nexus\\Admin\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Nexus\\Admin\\NexusServiceProvider"
+            ]
+        }
+    }
+}
