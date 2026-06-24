@@ -2,29 +2,29 @@
   Stat Card — KPI block dengan icon, value, label, dan optional change indicator.
   
   Usage 1 — basic:
-    <x-nexus::stat-card 
+    x-nexus::stat-card 
         label="Total Pengguna" 
         value="1,247" 
         icon-color="primary">
-        <x-slot:icon><x-nexus::icons.users /></x-slot:icon>
-    </x-nexus::stat-card>
+        x-slot:icon>x-nexus::icons.users />/x-slot:icon>
+    /x-nexus::stat-card>
 
   Usage 2 — dengan change indicator (naik/turun):
-    <x-nexus::stat-card 
+    x-nexus::stat-card 
         label="Penjualan" 
         value="Rp 12.4M" 
         icon-color="green"
         change="+12.5%" 
         change-direction="up">
-        <x-slot:icon><x-nexus::icons.shopping-bag /></x-slot:icon>
-    </x-nexus::stat-card>
+        x-slot:icon>x-nexus::icons.shopping-bag />/x-slot:icon>
+    /x-nexus::stat-card>
 
   Usage di grid 4 kolom:
     <div class="stats-grid">
-        <x-nexus::stat-card .../>
-        <x-nexus::stat-card .../>
-        <x-nexus::stat-card .../>
-        <x-nexus::stat-card .../>
+        x-nexus::stat-card .../>
+        x-nexus::stat-card .../>
+        x-nexus::stat-card .../>
+        x-nexus::stat-card .../>
     </div>
 
   Props:

@@ -2,9 +2,9 @@
   Empty State — placeholder saat tidak ada data.
 
   Usage:
-    <x-nexus::empty-state title="Belum ada pengguna" desc="Tambahkan pengguna pertama Anda." icon="👥">
-        <x-nexus::button><x-nexus::icons.plus :size="14" /> Tambah</x-nexus::button>
-    </x-nexus::empty-state>
+    x-nexus::empty-state title="Belum ada pengguna" desc="Tambahkan pengguna pertama Anda." icon="👥">
+        x-nexus::button>x-nexus::icons.plus :size="14" /> Tambah/x-nexus::button>
+    /x-nexus::empty-state>
 
   Props:
     icon  : emoji/teks ikon (default 📭)

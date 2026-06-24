@@ -1,5 +1,5 @@
 {{--
-  Accordion Item — satu panel di dalam <x-nexus::accordion>.
+  Accordion Item — satu panel di dalam x-nexus::accordion>.
 
   Props:
     title : judul header

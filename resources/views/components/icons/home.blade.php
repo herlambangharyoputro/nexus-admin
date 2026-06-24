@@ -1,4 +1,4 @@
-{{-- Usage: <x-nexus::icons.home size="18" /> --}}
+{{-- Usage: x-nexus::icons.home size="18" /> --}}
 @props(['size' => 18, 'class' => ''])
 <svg width="{{ $size }}" height="{{ $size }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="{{ $class }}">
     <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>

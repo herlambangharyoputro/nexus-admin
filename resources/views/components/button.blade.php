@@ -2,13 +2,13 @@
   Button — supports semua variant CSS template.
   
   Usage:
-    <x-nexus::button>Default Primary</x-nexus::button>
-    <x-nexus::button variant="outline" size="sm">Cancel</x-nexus::button>
-    <x-nexus::button variant="danger" type="submit">Delete</x-nexus::button>
-    <x-nexus::button variant="ghost" icon>
-        <x-nexus::icons.menu />
-    </x-nexus::button>
-    <x-nexus::button full-width href="{{ url('/somewhere') }}">Sign In</x-nexus::button>
+    x-nexus::button>Default Primary/x-nexus::button>
+    x-nexus::button variant="outline" size="sm">Cancel/x-nexus::button>
+    x-nexus::button variant="danger" type="submit">Delete/x-nexus::button>
+    x-nexus::button variant="ghost" icon>
+        x-nexus::icons.menu />
+    /x-nexus::button>
+    x-nexus::button full-width href="{{ url('/somewhere') }}">Sign In/x-nexus::button>
 
   Props:
     variant  : primary (default) | outline | ghost | danger | success | warning

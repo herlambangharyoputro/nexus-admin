@@ -3,15 +3,15 @@
   Pola "card table" untuk ringkasan/daftar pendek di dashboard.
 
   Usage:
-    <x-nexus::card-table title="Transaksi Terbaru">
-        <x-slot:action><x-nexus::button variant="ghost" size="sm">Lihat semua</x-nexus::button></x-slot:action>
-        <x-slot:head>
+    x-nexus::card-table title="Transaksi Terbaru">
+        x-slot:action>x-nexus::button variant="ghost" size="sm">Lihat semua/x-nexus::button>/x-slot:action>
+        x-slot:head>
             <th>Invoice</th><th>Pelanggan</th><th>Total</th>
-        </x-slot:head>
+        /x-slot:head>
         @foreach($rows as $r)
             <tr><td>{{ $r->no }}</td><td>{{ $r->cust }}</td><td>{{ $r->total }}</td></tr>
         @endforeach
-    </x-nexus::card-table>
+    /x-nexus::card-table>
 
   Props:
     title    : judul header

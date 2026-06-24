@@ -3,7 +3,7 @@
   @yield('breadcrumb'), komponen ini mengisinya.
 
   Usage:
-    <x-nexus::breadcrumb :items="[
+    x-nexus::breadcrumb :items="[
         ['label' => 'Dashboard', 'url' => url('/')],
         ['label' => 'Pengguna', 'url' => route('users.index')],
         ['label' => 'Detail'],

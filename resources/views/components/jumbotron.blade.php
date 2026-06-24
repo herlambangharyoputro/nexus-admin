@@ -2,10 +2,10 @@
   Jumbotron — banner/hero untuk header halaman atau ajakan aksi.
 
   Usage:
-    <x-nexus::jumbotron title="Selamat datang, Herlambang 👋" text="Ringkasan aktivitas bisnis Anda hari ini.">
-        <x-nexus::button>Mulai</x-nexus::button>
-        <x-nexus::button variant="outline">Pelajari</x-nexus::button>
-    </x-nexus::jumbotron>
+    x-nexus::jumbotron title="Selamat datang, Herlambang 👋" text="Ringkasan aktivitas bisnis Anda hari ini.">
+        x-nexus::button>Mulai/x-nexus::button>
+        x-nexus::button variant="outline">Pelajari/x-nexus::button>
+    /x-nexus::jumbotron>
 
   Props:
     title : judul besar

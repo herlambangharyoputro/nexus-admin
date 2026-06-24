@@ -2,10 +2,10 @@
   Pagination — info + tombol halaman (.pagination).
 
   Usage 1 — dengan Laravel paginator (otomatis):
-    <x-nexus::pagination :paginator="$users" />
+    x-nexus::pagination :paginator="$users" />
 
   Usage 2 — manual:
-    <x-nexus::pagination :current="3" :last="10" :from="21" :to="30" :total="98" base-url="/users" />
+    x-nexus::pagination :current="3" :last="10" :from="21" :to="30" :total="98" base-url="/users" />
 
   Props:
     paginator : LengthAwarePaginator → semua nilai diturunkan otomatis

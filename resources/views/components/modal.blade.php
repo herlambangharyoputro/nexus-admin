@@ -2,21 +2,21 @@
   Modal — overlay dialog. Triggered via data-modal-open or JS Modal.open(id).
   
   Usage 1 — basic:
-    <x-nexus::modal id="addUserModal" title="Tambah Pengguna">
+    x-nexus::modal id="addUserModal" title="Tambah Pengguna">
         <p>Form di sini...</p>
-    </x-nexus::modal>
+    /x-nexus::modal>
 
     <!-- Trigger -->
-    <x-nexus::button data-modal-open="addUserModal">Tambah Pengguna</x-nexus::button>
+    x-nexus::button data-modal-open="addUserModal">Tambah Pengguna/x-nexus::button>
 
   Usage 2 — dengan footer (slot 'footer'):
-    <x-nexus::modal id="confirmDelete" title="Hapus Item?">
+    x-nexus::modal id="confirmDelete" title="Hapus Item?">
         Aksi ini tidak bisa di-undo.
-        <x-slot:footer>
-            <x-nexus::button variant="outline" data-modal-close>Batal</x-nexus::button>
-            <x-nexus::button variant="danger">Hapus</x-nexus::button>
-        </x-slot:footer>
-    </x-nexus::modal>
+        x-slot:footer>
+            x-nexus::button variant="outline" data-modal-close>Batal/x-nexus::button>
+            x-nexus::button variant="danger">Hapus/x-nexus::button>
+        /x-slot:footer>
+    /x-nexus::modal>
 
   Usage 3 — open via JS:
     Modal.open('addUserModal');   // di app.js

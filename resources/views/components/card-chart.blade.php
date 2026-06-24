@@ -2,15 +2,15 @@
   Card Chart — kartu berjudul berisi chart. Pola "card chart" dashboard.
 
   Usage:
-    <x-nexus::card-chart title="Penjualan" subtitle="6 bulan terakhir"
+    x-nexus::card-chart title="Penjualan" subtitle="6 bulan terakhir"
         type="area"
         :series="[['name'=>'2025','data'=>[31,40,28,51,42,82]]]"
         :options="['xaxis'=>['categories'=>['Jan','Feb','Mar','Apr','Mei','Jun']]]" />
 
-    {{-- atau chart kustom via slot --}}
-    <x-nexus::card-chart title="Custom">
-        <x-slot:chart><x-nexus::chart type="bar" :series="$s" /></x-slot:chart>
-    </x-nexus::card-chart>
+    // atau chart kustom via slot:
+    x-nexus::card-chart title="Custom">
+        x-slot:chart>x-nexus::chart type="bar" :series="$s" />/x-slot:chart>
+    /x-nexus::card-chart>
 
   Props: title, subtitle, type, series, options, height
   Slots: action (kanan header), chart (override chart)

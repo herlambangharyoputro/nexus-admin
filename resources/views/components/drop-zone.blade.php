@@ -2,8 +2,8 @@
   Drop Zone — area unggah berkas (klik untuk pilih; input tersembunyi di dalam).
 
   Usage:
-    <x-nexus::drop-zone name="document" accept=".pdf,.jpg" hint="PDF atau JPG, maks 2MB" />
-    <x-nexus::drop-zone name="photos" multiple text="Lepas foto di sini" />
+    x-nexus::drop-zone name="document" accept=".pdf,.jpg" hint="PDF atau JPG, maks 2MB" />
+    x-nexus::drop-zone name="photos" multiple text="Lepas foto di sini" />
 
   Props:
     name     : nama input file

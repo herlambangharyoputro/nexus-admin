@@ -4,7 +4,7 @@
   Lihat CHARTS.md untuk setup + 14 resep tipe chart.
 
   Usage:
-    <x-nexus::chart type="line"
+    x-nexus::chart type="line"
         :series="[['name'=>'Penjualan','data'=>[30,40,35,50,49,60]]]"
         :options="['xaxis'=>['categories'=>['Jan','Feb','Mar','Apr','Mei','Jun']]]"
         :height="300" />

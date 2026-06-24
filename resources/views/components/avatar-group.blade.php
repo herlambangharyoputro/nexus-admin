@@ -2,8 +2,8 @@
   Avatar Group — tumpukan avatar yang saling tumpang tindih (.avatar-group .av).
 
   Usage:
-    <x-nexus::avatar-group :items="['Andi Pratama','Budi Santoso','Citra Dewi']" :max="3" />
-    <x-nexus::avatar-group :items="[
+    x-nexus::avatar-group :items="['Andi Pratama','Budi Santoso','Citra Dewi']" :max="3" />
+    x-nexus::avatar-group :items="[
         ['name'=>'Andi','src'=>asset('a.jpg')],
         ['name'=>'Budi'],
     ]" />

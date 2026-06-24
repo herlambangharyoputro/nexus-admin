@@ -2,7 +2,7 @@
   Search Box — input pencarian ber-ikon (.search-box).
 
   Usage:
-    <x-nexus::search-box name="q" placeholder="Cari pengguna..." :value="request('q')" />
+    x-nexus::search-box name="q" placeholder="Cari pengguna..." :value="request('q')" />
 
   Props:
     name        : nama input

@@ -2,8 +2,8 @@
   Progress — bar progres (.progress-bar > .progress-fill).
 
   Usage:
-    <x-nexus::progress :value="72" />
-    <x-nexus::progress :value="40" color="green" label>Upload</x-nexus::progress>
+    x-nexus::progress :value="72" />
+    x-nexus::progress :value="40" color="green" label>Upload/x-nexus::progress>
 
   Props:
     value  : 0–100

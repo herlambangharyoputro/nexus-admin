@@ -4,7 +4,7 @@
   menargetkan #id — lihat CHARTS.md (bagian Calendar).
 
   Usage:
-    <x-nexus::calendar id="kalender" />
+    x-nexus::calendar id="kalender" />
     @push('scripts')
       <script>
         new FullCalendar.Calendar(document.getElementById('kalender'), {

@@ -2,18 +2,18 @@
   Avatar — circular user identifier.
 
   Usage 1 — initials (manual):
-    <x-nexus::avatar initials="AP" />
-    <x-nexus::avatar initials="JD" size="lg" />
+    x-nexus::avatar initials="AP" />
+    x-nexus::avatar initials="JD" size="lg" />
 
   Usage 2 — auto-initials dari nama:
-    <x-nexus::avatar name="Andi Pratama" />          → "AP"
-    <x-nexus::avatar name="John" />                  → "J"
+    x-nexus::avatar name="Andi Pratama" />          → "AP"
+    x-nexus::avatar name="John" />                  → "J"
 
   Usage 3 — image:
-    <x-nexus::avatar src="{{ asset('avatars/user1.jpg') }}" name="User 1" />
+    x-nexus::avatar src="{{ asset('avatars/user1.jpg') }}" name="User 1" />
 
   Usage 4 — custom background color via inline style:
-    <x-nexus::avatar initials="AB" style="background: var(--green);" />
+    x-nexus::avatar initials="AB" style="background: var(--green);" />
 
   Props:
     size     : md (default) | sm | lg

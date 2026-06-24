@@ -2,8 +2,8 @@
   Form Input — <input> ber-style .form-input.
 
   Usage:
-    <x-nexus::form.input name="email" type="email" placeholder="you@mail.com" />
-    <x-nexus::form.input name="qty" type="number" :value="$qty" />
+    x-nexus::form.input name="email" type="email" placeholder="you@mail.com" />
+    x-nexus::form.input name="qty" type="number" :value="$qty" />
 
   Props:
     type        : text (default) | email | password | number | date | ...

@@ -2,8 +2,8 @@
   Divider — garis pemisah.
 
   Usage:
-    <x-nexus::divider />              {{-- horizontal --}}
-    <x-nexus::divider vertical />     {{-- vertikal (24px) --}}
+    x-nexus::divider />              (horizontal)
+    x-nexus::divider vertical />     (vertikal, 24px)
 
   Props:
     vertical : true → .divider-v

@@ -2,8 +2,8 @@
   Toggle — switch on/off (pure CSS, membungkus checkbox).
 
   Usage:
-    <x-nexus::toggle name="notif" :checked="true" label="Aktifkan notifikasi" />
-    <x-nexus::toggle name="dark" value="1" />
+    x-nexus::toggle name="notif" :checked="true" label="Aktifkan notifikasi" />
+    x-nexus::toggle name="dark" value="1" />
 
   Props:
     name, id : atribut checkbox

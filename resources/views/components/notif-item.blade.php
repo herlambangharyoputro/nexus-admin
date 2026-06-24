@@ -1,5 +1,5 @@
 {{--
-  Notif Item — satu notifikasi di dalam <x-nexus::notif-panel>.
+  Notif Item — satu notifikasi di dalam x-nexus::notif-panel>.
 
   Props:
     id        : id notifikasi (untuk data-notif-id; klik → tandai dibaca)

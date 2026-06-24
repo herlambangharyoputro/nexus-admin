@@ -2,8 +2,8 @@
   Mini Stat — blok statistik ringkas (label kiri, value kanan).
 
   Usage:
-    <x-nexus::mini-stat label="Hari ini" value="42" />
-    <x-nexus::mini-stat label="Pending" value="7" color="amber" />
+    x-nexus::mini-stat label="Hari ini" value="42" />
+    x-nexus::mini-stat label="Pending" value="7" color="amber" />
 
   Props:
     label, value : teks

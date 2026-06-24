@@ -2,10 +2,10 @@
   Skeleton — placeholder loading shimmer.
 
   Usage:
-    <x-nexus::skeleton variant="title" />
-    <x-nexus::skeleton variant="text" :count="3" />
-    <x-nexus::skeleton variant="box" height="120px" />
-    <x-nexus::skeleton width="50%" />
+    x-nexus::skeleton variant="title" />
+    x-nexus::skeleton variant="text" :count="3" />
+    x-nexus::skeleton variant="box" height="120px" />
+    x-nexus::skeleton width="50%" />
 
   Props:
     variant : text (default) | title | box

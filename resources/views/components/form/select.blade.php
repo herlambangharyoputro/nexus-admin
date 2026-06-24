@@ -2,13 +2,13 @@
   Form Select — <select> ber-style .form-select.
 
   Usage 1 — via :options (key => label):
-    <x-nexus::form.select name="role" :options="['admin'=>'Admin','user'=>'User']" :selected="$role" placeholder="Pilih peran" />
+    x-nexus::form.select name="role" :options="['admin'=>'Admin','user'=>'User']" :selected="$role" placeholder="Pilih peran" />
 
   Usage 2 — via slot:
-    <x-nexus::form.select name="city">
+    x-nexus::form.select name="city">
         <option value="sby">Surabaya</option>
         <option value="mlg">Malang</option>
-    </x-nexus::form.select>
+    /x-nexus::form.select>
 
   Props:
     name, id    : atribut standar

@@ -1,10 +1,10 @@
 {{--
   Lightbox — overlay penampil gambar dengan prev/next (modul JS Lightbox).
   PASANG SEKALI (mis. di layout). Otomatis terhubung ke semua [data-lightbox]
-  (mis. dari <x-nexus::gallery-item>). Navigasi keyboard: ←/→/Esc.
+  (mis. dari x-nexus::gallery-item>). Navigasi keyboard: ←/→/Esc.
 
   Usage:
-    <x-nexus::lightbox />
+    x-nexus::lightbox />
 --}}
 <div id="nexusLightbox" class="lightbox" style="display:none">
     <button type="button" class="lightbox-close" data-lb-close aria-label="Tutup">&times;</button>

@@ -2,15 +2,15 @@
   Form Wizard — form multi-langkah dengan stepper (modul JS Wizard).
 
   Usage:
-    <x-nexus::form-wizard :steps="['Akun','Profil','Selesai']" :action="route('register')" submit-label="Daftar">
-        <x-nexus::wizard-pane>
-            <x-nexus::form.group label="Email"><x-nexus::form.input name="email" type="email" /></x-nexus::form.group>
-        </x-nexus::wizard-pane>
-        <x-nexus::wizard-pane>
-            <x-nexus::form.group label="Nama"><x-nexus::form.input name="name" /></x-nexus::form.group>
-        </x-nexus::wizard-pane>
-        <x-nexus::wizard-pane>Ringkasan & konfirmasi...</x-nexus::wizard-pane>
-    </x-nexus::form-wizard>
+    x-nexus::form-wizard :steps="['Akun','Profil','Selesai']" :action="route('register')" submit-label="Daftar">
+        x-nexus::wizard-pane>
+            x-nexus::form.group label="Email">x-nexus::form.input name="email" type="email" />/x-nexus::form.group>
+        /x-nexus::wizard-pane>
+        x-nexus::wizard-pane>
+            x-nexus::form.group label="Nama">x-nexus::form.input name="name" />/x-nexus::form.group>
+        /x-nexus::wizard-pane>
+        x-nexus::wizard-pane>Ringkasan & konfirmasi.../x-nexus::wizard-pane>
+    /x-nexus::form-wizard>
 
   Props:
     steps       : array label langkah (jumlah harus = jumlah wizard-pane)

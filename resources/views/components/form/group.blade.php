@@ -2,13 +2,13 @@
   Form Group — wrapper label + kontrol + hint/error.
 
   Usage:
-    <x-nexus::form.group label="Nama" for="name" required>
-        <x-nexus::form.input id="name" name="name" />
-    </x-nexus::form.group>
+    x-nexus::form.group label="Nama" for="name" required>
+        x-nexus::form.input id="name" name="name" />
+    /x-nexus::form.group>
 
-    <x-nexus::form.group label="Email" for="email" error="Email wajib diisi">
-        <x-nexus::form.input id="email" type="email" />
-    </x-nexus::form.group>
+    x-nexus::form.group label="Email" for="email" error="Email wajib diisi">
+        x-nexus::form.input id="email" type="email" />
+    /x-nexus::form.group>
 
   Props:
     label    : string → teks label

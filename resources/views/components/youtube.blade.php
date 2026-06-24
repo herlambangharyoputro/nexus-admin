@@ -2,8 +2,8 @@
   YouTube — embed video responsif 16:9 (youtube-nocookie, lazy). Tanpa lib.
 
   Usage:
-    <x-nexus::youtube id="dQw4w9WgXcQ" />
-    <x-nexus::youtube url="https://youtu.be/dQw4w9WgXcQ" title="Demo produk" />
+    x-nexus::youtube id="dQw4w9WgXcQ" />
+    x-nexus::youtube url="https://youtu.be/dQw4w9WgXcQ" title="Demo produk" />
 
   Props:
     id    : ID video YouTube (11 karakter)

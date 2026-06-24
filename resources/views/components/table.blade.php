@@ -2,21 +2,21 @@
   Table — wrapper <table class="data-table"> dengan slot head + body.
 
   Usage:
-    <x-nexus::table sortable>
-        <x-slot:head>
+    x-nexus::table sortable>
+        x-slot:head>
             <th data-sort="name">Nama</th>
             <th data-sort="email">Email</th>
             <th>Aksi</th>
-        </x-slot:head>
+        /x-slot:head>
 
         @foreach($users as $u)
             <tr>
                 <td>{{ $u->name }}</td>
                 <td>{{ $u->email }}</td>
-                <td><x-nexus::table-actions :edit="route('users.edit',$u)" :delete="route('users.destroy',$u)" /></td>
+                <td>x-nexus::table-actions :edit="route('users.edit',$u)" :delete="route('users.destroy',$u)" /></td>
             </tr>
         @endforeach
-    </x-nexus::table>
+    /x-nexus::table>
 
   Props:
     sortable : true → tambahkan data-sort-table (client-side sort via app.js).

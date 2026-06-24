@@ -2,15 +2,15 @@
   Table Actions — grup tombol aksi baris (lihat / edit / hapus).
 
   Usage:
-    <x-nexus::table-actions
+    x-nexus::table-actions
         :view="route('users.show',$u)"
         :edit="route('users.edit',$u)"
         :delete="route('users.destroy',$u)" />
 
-    {{-- aksi tambahan via slot --}}
-    <x-nexus::table-actions :edit="$editUrl">
-        <x-nexus::button variant="ghost" size="sm">Lainnya</x-nexus::button>
-    </x-nexus::table-actions>
+    // aksi tambahan via slot:
+    x-nexus::table-actions :edit="$editUrl">
+        x-nexus::button variant="ghost" size="sm">Lainnya/x-nexus::button>
+    /x-nexus::table-actions>
 
   Props:
     view, edit    : URL → render tombol ikon (anchor)

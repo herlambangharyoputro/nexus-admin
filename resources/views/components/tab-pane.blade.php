@@ -1,5 +1,5 @@
 {{--
-  Tab Pane — panel untuk satu tab. Dipakai di dalam <x-nexus::tabs>.
+  Tab Pane — panel untuk satu tab. Dipakai di dalam x-nexus::tabs>.
 
   Props:
     name   : key yang cocok dengan key di :tabs

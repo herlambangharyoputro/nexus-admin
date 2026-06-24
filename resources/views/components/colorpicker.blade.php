@@ -4,7 +4,7 @@
   tetap input teks biasa (boleh diisi hex manual).
 
   Usage:
-    <x-nexus::colorpicker name="brand_color" value="#0093b4" />
+    x-nexus::colorpicker name="brand_color" value="#0093b4" />
 
   Props:
     name, id : atribut

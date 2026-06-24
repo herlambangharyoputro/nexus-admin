@@ -5,10 +5,10 @@
   menargetkan #id — lihat CHARTS.md (bagian Map).
 
   Usage (auto):
-    <x-nexus::map :lat="-7.2575" :lng="112.7521" :zoom="13" height="400px" />
+    x-nexus::map :lat="-7.2575" :lng="112.7521" :zoom="13" height="400px" />
 
   Usage (manual):
-    <x-nexus::map id="petaWalida" height="480px" />
+    x-nexus::map id="petaWalida" height="480px" />
     @push('scripts') <script> /* L.map('petaWalida')... */ </script> @endpush
 
   Props:

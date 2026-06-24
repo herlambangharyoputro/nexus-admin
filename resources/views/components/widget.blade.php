@@ -2,11 +2,11 @@
   Widget — panel dashboard (header judul + subtitle + aksi, body, footer opsional).
 
   Usage:
-    <x-nexus::widget title="Penjualan" subtitle="30 hari terakhir">
-        <x-slot:action><x-nexus::dropdown label="Periode">...</x-nexus::dropdown></x-slot:action>
+    x-nexus::widget title="Penjualan" subtitle="30 hari terakhir">
+        x-slot:action>x-nexus::dropdown label="Periode">.../x-nexus::dropdown>/x-slot:action>
         ... isi widget ...
-        <x-slot:footer><x-nexus::button variant="ghost" size="sm" full-width>Lihat detail</x-nexus::button></x-slot:footer>
-    </x-nexus::widget>
+        x-slot:footer>x-nexus::button variant="ghost" size="sm" full-width>Lihat detail/x-nexus::button>/x-slot:footer>
+    /x-nexus::widget>
 
   Props:
     title, subtitle : header

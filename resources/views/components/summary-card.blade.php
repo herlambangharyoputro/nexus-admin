@@ -3,9 +3,9 @@
   Varian ringkas dari stat-card (yang vertikal). Cocok untuk baris ringkasan.
 
   Usage:
-    <x-nexus::summary-card label="Total Pesanan" value="1.247" icon-color="primary" change="+8%" change-direction="up">
-        <x-slot:icon><x-nexus::icons.shopping-bag /></x-slot:icon>
-    </x-nexus::summary-card>
+    x-nexus::summary-card label="Total Pesanan" value="1.247" icon-color="primary" change="+8%" change-direction="up">
+        x-slot:icon>x-nexus::icons.shopping-bag />/x-slot:icon>
+    /x-nexus::summary-card>
 
   Props:
     label, value    : teks

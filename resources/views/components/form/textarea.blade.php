@@ -2,8 +2,8 @@
   Form Textarea — <textarea> ber-style .form-textarea.
 
   Usage:
-    <x-nexus::form.textarea name="notes" rows="5" placeholder="Catatan..." />
-    <x-nexus::form.textarea name="bio" :value="$bio" />
+    x-nexus::form.textarea name="notes" rows="5" placeholder="Catatan..." />
+    x-nexus::form.textarea name="bio" :value="$bio" />
 
   Props:
     name, id    : atribut standar

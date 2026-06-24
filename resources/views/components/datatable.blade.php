@@ -3,25 +3,25 @@
   Pola "list/index page" standar Nexus Admin.
 
   Usage:
-    <x-nexus::datatable title="Daftar Pengguna" :paginator="$users" sortable>
-        <x-slot:actions>
-            <x-nexus::button size="sm"><x-nexus::icons.plus :size="14" /> Tambah</x-nexus::button>
-        </x-slot:actions>
+    x-nexus::datatable title="Daftar Pengguna" :paginator="$users" sortable>
+        x-slot:actions>
+            x-nexus::button size="sm">x-nexus::icons.plus :size="14" /> Tambah/x-nexus::button>
+        /x-slot:actions>
 
-        <x-slot:head>
+        x-slot:head>
             <th data-sort="name">Nama</th>
             <th data-sort="email">Email</th>
             <th>Aksi</th>
-        </x-slot:head>
+        /x-slot:head>
 
         @foreach($users as $u)
             <tr>
                 <td>{{ $u->name }}</td>
                 <td>{{ $u->email }}</td>
-                <td><x-nexus::table-actions :edit="route('users.edit',$u)" :delete="route('users.destroy',$u)" /></td>
+                <td>x-nexus::table-actions :edit="route('users.edit',$u)" :delete="route('users.destroy',$u)" /></td>
             </tr>
         @endforeach
-    </x-nexus::datatable>
+    /x-nexus::datatable>
 
   Props:
     title            : judul di bar kontrol

@@ -1,12 +1,12 @@
 {{--
-  Carousel — slider scroll-snap (tanpa lib). Isi dengan <x-nexus::carousel-item>.
+  Carousel — slider scroll-snap (tanpa lib). Isi dengan x-nexus::carousel-item>.
   Tombol prev/next menggeser via modul JS Carousel; swipe/scroll juga jalan.
 
   Usage:
-    <x-nexus::carousel>
-        <x-nexus::carousel-item style="width:280px"><x-nexus::card>Slide 1</x-nexus::card></x-nexus::carousel-item>
-        <x-nexus::carousel-item style="width:280px"><x-nexus::card>Slide 2</x-nexus::card></x-nexus::carousel-item>
-    </x-nexus::carousel>
+    x-nexus::carousel>
+        x-nexus::carousel-item style="width:280px">x-nexus::card>Slide 1/x-nexus::card>/x-nexus::carousel-item>
+        x-nexus::carousel-item style="width:280px">x-nexus::card>Slide 2/x-nexus::card>/x-nexus::carousel-item>
+    /x-nexus::carousel>
 
   Props:
     controls : true (default) → tampilkan tombol prev/next

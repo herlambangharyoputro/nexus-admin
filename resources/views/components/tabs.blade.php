@@ -2,10 +2,10 @@
   Tabs — navigasi tab + panel (switch via app.js modul Tabs).
 
   Usage:
-    <x-nexus::tabs :tabs="['profile'=>'Profil','security'=>'Keamanan']" active="profile">
-        <x-nexus::tab-pane name="profile" active>Konten profil...</x-nexus::tab-pane>
-        <x-nexus::tab-pane name="security">Konten keamanan...</x-nexus::tab-pane>
-    </x-nexus::tabs>
+    x-nexus::tabs :tabs="['profile'=>'Profil','security'=>'Keamanan']" active="profile">
+        x-nexus::tab-pane name="profile" active>Konten profil.../x-nexus::tab-pane>
+        x-nexus::tab-pane name="security">Konten keamanan.../x-nexus::tab-pane>
+    /x-nexus::tabs>
 
   Props:
     tabs   : array [key => label]

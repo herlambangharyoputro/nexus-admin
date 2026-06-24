@@ -2,10 +2,10 @@
   Alert — inline notification box.
   
   Usage:
-    <x-nexus::alert>Default info message</x-nexus::alert>
-    <x-nexus::alert type="success">Data berhasil disimpan</x-nexus::alert>
-    <x-nexus::alert type="error">Gagal koneksi ke server</x-nexus::alert>
-    <x-nexus::alert type="warning" :dismissible="true">Sesi akan berakhir</x-nexus::alert>
+    x-nexus::alert>Default info message/x-nexus::alert>
+    x-nexus::alert type="success">Data berhasil disimpan/x-nexus::alert>
+    x-nexus::alert type="error">Gagal koneksi ke server/x-nexus::alert>
+    x-nexus::alert type="warning" :dismissible="true">Sesi akan berakhir/x-nexus::alert>
 
   Props:
     type        : info (default) | success | warning | error

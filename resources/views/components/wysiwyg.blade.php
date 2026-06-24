@@ -3,7 +3,7 @@
   meng-init bila window.Quill ada, dan menyinkronkan HTML ke input tersembunyi.
 
   Usage:
-    <x-nexus::wysiwyg name="body" :value="old('body', $post->body ?? '')" height="240px" />
+    x-nexus::wysiwyg name="body" :value="old('body', $post->body ?? '')" height="240px" />
 
   Props:
     name        : nama input tersembunyi (berisi HTML hasil edit)

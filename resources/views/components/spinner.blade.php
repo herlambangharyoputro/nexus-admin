@@ -2,9 +2,9 @@
   Spinner — indikator loading berputar.
 
   Usage:
-    <x-nexus::spinner />
-    <x-nexus::spinner size="lg" />
-    <x-nexus::button disabled><x-nexus::spinner size="sm" /> Memuat...</x-nexus::button>
+    x-nexus::spinner />
+    x-nexus::spinner size="lg" />
+    x-nexus::button disabled>x-nexus::spinner size="sm" /> Memuat.../x-nexus::button>
 
   Props:
     size : md (default) | sm | lg

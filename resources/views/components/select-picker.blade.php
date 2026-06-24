@@ -4,7 +4,7 @@
   fallback ke <select> biasa.
 
   Usage:
-    <x-nexus::select-picker name="tags" multiple
+    x-nexus::select-picker name="tags" multiple
         :options="['laravel'=>'Laravel','php'=>'PHP','js'=>'JavaScript']"
         :selected="['laravel','php']" placeholder="Pilih tag" />
 

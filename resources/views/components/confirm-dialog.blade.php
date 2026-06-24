@@ -6,7 +6,7 @@
     - <button data-confirm-action="url" data-confirm="pesan">
 
   Usage (sekali di layout, sebelum </body>):
-    <x-nexus::confirm-dialog />
+    x-nexus::confirm-dialog />
 
   Catatan: id default "nexusConfirm" — jangan diubah (dipakai modul JS).
 --}}
