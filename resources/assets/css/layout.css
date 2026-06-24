@@ -43,7 +43,11 @@
   flex: 1;
   padding: 14px 10px;
   overflow-y: auto;
+  /* Hilangkan scrollbar tapi tetap bisa di-scroll */
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE / old Edge */
 }
+.sidebar-nav::-webkit-scrollbar { width: 0; height: 0; display: none; } /* WebKit */
 
 
 /* ── Logo ─────────────────────────────────────────────────── */

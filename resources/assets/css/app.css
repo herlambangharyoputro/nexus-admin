@@ -1,9 +1,10 @@
 /* ============================================================
    NEXUS ADMIN — MASTER STYLESHEET
-   Import order matters: tokens → base → utilities → layout → components
+   Import order matters: tokens → themes → base → utilities → layout → components
    ============================================================ */
 
 @import url('tokens.css');
+@import url('themes.css');
 @import url('base.css');
 @import url('utilities.css');
 @import url('layout.css');

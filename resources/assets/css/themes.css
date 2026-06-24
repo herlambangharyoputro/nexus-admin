@@ -1,0 +1,39 @@
+/* ============================================================
+   NEXUS ADMIN — THEMES (palet warna alternatif)
+   Override brand-token dari tokens.css via [data-theme].
+   Pakai: <html data-theme="indigo"> (atau di <body>).
+   Sidebar tetap navy untuk semua tema — hanya brand color berganti.
+   --border-focus ikut otomatis (= var(--primary)).
+   ============================================================ */
+
+/* Default (teal) = tidak perlu data-theme; nilai ada di tokens.css */
+
+[data-theme="indigo"] {
+  --primary:       #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-soft:  rgba(79, 70, 229, 0.12);
+}
+
+[data-theme="emerald"] {
+  --primary:       #059669;
+  --primary-hover: #047857;
+  --primary-soft:  rgba(5, 150, 105, 0.12);
+}
+
+[data-theme="violet"] {
+  --primary:       #7c3aed;
+  --primary-hover: #6d28d9;
+  --primary-soft:  rgba(124, 58, 237, 0.12);
+}
+
+[data-theme="rose"] {
+  --primary:       #e11d48;
+  --primary-hover: #be123c;
+  --primary-soft:  rgba(225, 29, 72, 0.12);
+}
+
+[data-theme="amber"] {
+  --primary:       #d97706;
+  --primary-hover: #b45309;
+  --primary-soft:  rgba(217, 119, 6, 0.12);
+}

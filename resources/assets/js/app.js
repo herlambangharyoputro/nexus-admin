@@ -8,6 +8,13 @@
      3. Modal system    → window.Modal.open(id), window.Modal.close()
      4. Notification    → window.Notif.markRead(id), markAllRead()
      5. Table sort      → auto-init via [data-sort-table]
+     6. Dropdown        → auto-init via [data-dropdown]
+     7. Tabs            → auto-init via [data-tabs]
+     8. Accordion       → auto-init via [data-accordion]
+     9. Confirm         → window.Confirm.show({message, onConfirm})
+    10. Wizard          → auto-init via [data-wizard]
+    11. Lightbox        → auto-init via [data-lightbox] + #nexusLightbox
+    12. Carousel        → auto-init via [data-carousel]
      ============================================================ */
 
 (function ($) {
@@ -26,68 +33,103 @@
      1. Sidebar (collapse desktop + slide mobile)
      ────────────────────────────────────────────────────────── */
   const Sidebar = (function () {
-    const $sidebar = $('.sidebar');
-    const $main    = $('.main');
-    const $overlay = $('.sidebar-overlay');
     const MOBILE_BREAKPOINT = 768;
+    const STORAGE_KEY = 'nexus.sidebar.collapsed';
+    let bound = false;
+
+    // Re-query setiap akses → tahan terhadap urutan load script & DOM yang
+    // di-render ulang. (Bug umum: cache $('.sidebar') saat <head> = kosong.)
+    function $sidebar() { return $('.sidebar'); }
+    function $main()    { return $('.main'); }
+    function $overlay() { return $('.sidebar-overlay'); }
 
     function isMobile() {
       return window.innerWidth < MOBILE_BREAKPOINT;
     }
 
+    function persist(collapsed) {
+      try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch (e) {}
+    }
+    function wasCollapsed() {
+      try { return localStorage.getItem(STORAGE_KEY) === '1'; } catch (e) { return false; }
+    }
+
+    function openMobile() {
+      $sidebar().removeClass('mobile-hidden');
+      $overlay().addClass('show');
+      $('body').addClass('overflow-hidden');
+    }
+    function closeMobile() {
+      $sidebar().addClass('mobile-hidden');
+      $overlay().removeClass('show');
+      $('body').removeClass('overflow-hidden');
+    }
+    function collapse() {
+      $sidebar().addClass('collapsed');
+      $main().addClass('expanded');
+      persist(true);
+    }
+    function expand() {
+      $sidebar().removeClass('collapsed');
+      $main().removeClass('expanded');
+      persist(false);
+    }
+
     function toggle() {
       if (isMobile()) {
-        $sidebar.toggleClass('mobile-hidden');
-        $overlay.toggleClass('show');
-        $('body').toggleClass('overflow-hidden');
+        if ($sidebar().hasClass('mobile-hidden')) openMobile();
+        else closeMobile();
       } else {
-        $sidebar.toggleClass('collapsed');
-        $main.toggleClass('expanded');
+        if ($sidebar().hasClass('collapsed')) expand();
+        else collapse();
       }
     }
 
-    function closeMobile() {
-      $sidebar.addClass('mobile-hidden');
-      $overlay.removeClass('show');
-      $('body').removeClass('overflow-hidden');
+    // Satu sumber kebenaran: sinkronkan kelas dengan ukuran layar saat ini.
+    function applyState() {
+      if (isMobile()) {
+        $sidebar().removeClass('collapsed').addClass('mobile-hidden');
+        $main().removeClass('expanded').addClass('no-margin');
+        $overlay().removeClass('show');
+        $('body').removeClass('overflow-hidden');
+      } else {
+        $sidebar().removeClass('mobile-hidden');
+        $overlay().removeClass('show');
+        $('body').removeClass('overflow-hidden');
+        $main().removeClass('no-margin');
+        if (wasCollapsed()) { $sidebar().addClass('collapsed'); $main().addClass('expanded'); }
+        else                { $sidebar().removeClass('collapsed'); $main().removeClass('expanded'); }
+      }
+    }
+
+    function debounce(fn, wait) {
+      let t;
+      return function () { clearTimeout(t); t = setTimeout(fn, wait); };
     }
 
     function init() {
-      // Set initial mobile state
-      if (isMobile()) {
-        $sidebar.addClass('mobile-hidden');
-        $main.addClass('no-margin');
-      }
+      // Idempotent: cegah double-bind kalau app.js ter-load lebih dari sekali.
+      if (bound) { applyState(); return; }
+      bound = true;
 
-      // Toggle button
-      $(document).on('click', '.topbar-toggle, [data-sidebar-toggle]', function (e) {
-        e.preventDefault();
-        toggle();
-      });
+      applyState();
 
-      // Overlay click to close (mobile)
-      $(document).on('click', '.sidebar-overlay', closeMobile);
+      // Namespaced + .off() dulu → aman dari binding ganda.
+      $(document)
+        .off('click.nexusSidebar')
+        .on('click.nexusSidebar', '.topbar-toggle, [data-sidebar-toggle]', function (e) {
+          e.preventDefault();
+          toggle();
+        })
+        .on('click.nexusSidebar', '.sidebar-overlay', closeMobile)
+        .on('click.nexusSidebar', '.sidebar .nav-item', function () {
+          if (isMobile()) closeMobile();
+        });
 
-      // Auto-close on nav click (mobile only)
-      $(document).on('click', '.sidebar .nav-item', function () {
-        if (isMobile()) closeMobile();
-      });
-
-      // Re-evaluate on resize
-      $(window).on('resize', function () {
-        if (!isMobile()) {
-          $sidebar.removeClass('mobile-hidden');
-          $overlay.removeClass('show');
-          $('body').removeClass('overflow-hidden');
-          $main.removeClass('no-margin');
-        } else {
-          $sidebar.removeClass('collapsed').addClass('mobile-hidden');
-          $main.removeClass('expanded').addClass('no-margin');
-        }
-      });
+      $(window).off('resize.nexusSidebar').on('resize.nexusSidebar', debounce(applyState, 150));
     }
 
-    return { init: init, toggle: toggle, closeMobile: closeMobile };
+    return { init: init, toggle: toggle, collapse: collapse, expand: expand, closeMobile: closeMobile };
   })();
 
   /* ──────────────────────────────────────────────────────────
@@ -271,11 +313,17 @@
      ────────────────────────────────────────────────────────── */
   const Topbar = (function () {
     function init() {
-      // Notification button — TODO: implement notification panel
+      // Notification button — toggle panel kalau <x-nexus::notif-panel/> dipasang,
+      // jika tidak, fallback ke toast.
       $(document).on('click', '[data-action="notifications"]', function (e) {
+        e.preventDefault();
         e.stopPropagation();
-        Toast.show('Notification panel belum diimplementasi', 'info');
+        const $panel = $('[data-notif-panel]');
+        if ($panel.length) { $panel.toggle(); }
+        else { Toast.show('Notification panel belum diimplementasi', 'info'); }
       });
+      $(document).on('click', '[data-notif-panel]', function (e) { e.stopPropagation(); });
+      $(document).on('click', function () { $('[data-notif-panel]:visible').hide(); });
 
       // Logout — confirm sebelum redirect
       $(document).on('click', '[data-action="logout"]', function (e) {
@@ -336,6 +384,307 @@
   })();
 
   /* ──────────────────────────────────────────────────────────
+     6. Dropdown — toggle .dropdown-menu.show
+     Markup: <div class="dropdown" data-dropdown>
+               <button data-dropdown-trigger>…</button>
+               <div class="dropdown-menu">…</div>
+             </div>
+     ────────────────────────────────────────────────────────── */
+  const Dropdown = (function () {
+    function closeAll(except) {
+      $('.dropdown-menu.show').each(function () {
+        if (this !== except) $(this).removeClass('show');
+      });
+    }
+    function init() {
+      $(document)
+        .off('.nexusDd')
+        .on('click.nexusDd', '[data-dropdown-trigger]', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          const $menu = $(this).closest('.dropdown').find('.dropdown-menu').first();
+          const isOpen = $menu.hasClass('show');
+          closeAll($menu[0]);
+          $menu.toggleClass('show', !isOpen);
+        })
+        .on('click.nexusDd', '.dropdown-menu', function (e) { e.stopPropagation(); })
+        .on('click.nexusDd', function () { closeAll(); })
+        .on('keydown.nexusDd', function (e) { if (e.key === 'Escape') closeAll(); });
+    }
+    return { init: init, closeAll: closeAll };
+  })();
+
+  /* ──────────────────────────────────────────────────────────
+     7. Tabs — switch .settings-tab.active + .tab-pane.active
+     Markup: <div data-tabs> … [data-tab="k"] … [data-pane="k"] … </div>
+     ────────────────────────────────────────────────────────── */
+  const Tabs = (function () {
+    function init() {
+      $(document).off('click.nexusTab').on('click.nexusTab', '[data-tab]', function () {
+        const key = $(this).attr('data-tab');
+        const $root = $(this).closest('[data-tabs]');
+        $root.find('[data-tab]').removeClass('active');
+        $(this).addClass('active');
+        $root.find('[data-pane]').removeClass('active');
+        $root.find('[data-pane="' + key + '"]').addClass('active');
+      });
+    }
+    return { init: init };
+  })();
+
+  /* ──────────────────────────────────────────────────────────
+     8. Accordion — toggle .accordion-item.open + max-height
+     ────────────────────────────────────────────────────────── */
+  const Accordion = (function () {
+    function init() {
+      $(document).off('click.nexusAcc').on('click.nexusAcc', '[data-accordion-toggle]', function () {
+        const $item = $(this).closest('.accordion-item');
+        const $acc  = $item.closest('[data-accordion]');
+        const multi = $acc.attr('data-accordion-multi') !== undefined;
+        const $body = $item.find('.accordion-body').first();
+        const isOpen = $item.hasClass('open');
+
+        if (!multi) {
+          $acc.find('.accordion-item.open').not($item)
+            .removeClass('open')
+            .find('.accordion-body').css('max-height', '');
+        }
+        if (isOpen) {
+          $item.removeClass('open');
+          $body.css('max-height', '');
+        } else {
+          $item.addClass('open');
+          $body.css('max-height', $body[0].scrollHeight + 'px');
+        }
+      });
+    }
+    return { init: init };
+  })();
+
+  /* ──────────────────────────────────────────────────────────
+     9. Confirm — dialog konfirmasi global (butuh <x-nexus::confirm-dialog/>)
+     Intersep: form[data-confirm], a[data-confirm], [data-confirm-action]
+     ────────────────────────────────────────────────────────── */
+  const Confirm = (function () {
+    let pending = null;
+
+    function show(opts) {
+      pending = opts || {};
+      $('[data-confirm-message]').text(pending.message || 'Anda yakin?');
+      $('[data-confirm-title]').text(pending.title || 'Konfirmasi');
+      const $ok = $('[data-confirm-ok]');
+      $ok.text(pending.okLabel || 'Ya, lanjutkan');
+      if (window.Modal) window.Modal.open('nexusConfirm');
+    }
+
+    function init() {
+      if (!$('#nexusConfirm').length) return; // perlu komponen confirm-dialog
+
+      $(document)
+        .off('.nexusConfirm')
+        .on('submit.nexusConfirm', 'form[data-confirm]', function (e) {
+          if ($(this).data('confirmed')) return;
+          e.preventDefault();
+          const form = this;
+          show({
+            message: $(this).attr('data-confirm'),
+            onConfirm: function () { $(form).data('confirmed', true); form.submit(); }
+          });
+        })
+        .on('click.nexusConfirm', 'a[data-confirm], [data-confirm-action]', function (e) {
+          e.preventDefault();
+          const href = $(this).attr('href') || $(this).attr('data-confirm-action');
+          show({
+            message: $(this).attr('data-confirm'),
+            onConfirm: function () { if (href) window.location.href = href; }
+          });
+        })
+        .on('click.nexusConfirm', '[data-confirm-ok]', function () {
+          const p = pending;
+          if (window.Modal) window.Modal.close();
+          pending = null;
+          if (p && p.onConfirm) p.onConfirm();
+        });
+    }
+    return { init: init, show: show };
+  })();
+
+  /* ──────────────────────────────────────────────────────────
+     10. Wizard — navigasi form multi-langkah
+     Markup: <form data-wizard> .wizard-step* .wizard-pane* [data-wizard-prev/next/submit] </form>
+     ────────────────────────────────────────────────────────── */
+  const Wizard = (function () {
+    function go($w, idx) {
+      const $panes = $w.find('.wizard-pane');
+      const $steps = $w.find('.wizard-step');
+      idx = Math.max(0, Math.min(idx, $panes.length - 1));
+
+      $panes.removeClass('active').eq(idx).addClass('active');
+      $steps.removeClass('active done').each(function (i) {
+        if (i < idx) $(this).addClass('done');
+        else if (i === idx) $(this).addClass('active');
+      });
+
+      $w.data('step', idx);
+      const last = idx === $panes.length - 1;
+      $w.find('[data-wizard-prev]').prop('disabled', idx === 0);
+      $w.find('[data-wizard-next]').toggle(!last);
+      $w.find('[data-wizard-submit]').toggle(last);
+    }
+    function init() {
+      $('[data-wizard]').each(function () { go($(this), 0); });
+      $(document).off('.nexusWiz')
+        .on('click.nexusWiz', '[data-wizard-next]', function () {
+          const $w = $(this).closest('[data-wizard]'); go($w, ($w.data('step') || 0) + 1);
+        })
+        .on('click.nexusWiz', '[data-wizard-prev]', function () {
+          const $w = $(this).closest('[data-wizard]'); go($w, ($w.data('step') || 0) - 1);
+        });
+    }
+    return { init: init, go: go };
+  })();
+
+  /* ──────────────────────────────────────────────────────────
+     11. Lightbox — penampil gambar galeri (butuh <x-nexus::lightbox/>)
+     ────────────────────────────────────────────────────────── */
+  const Lightbox = (function () {
+    let items = [], idx = 0;
+
+    function render() {
+      const it = items[idx];
+      if (!it) return;
+      $('[data-lb-img]').attr('src', it.src || '').attr('alt', it.title || '');
+      $('[data-lb-info-title]').text(it.title || '');
+      $('[data-lb-info-sub]').text(it.sub || '');
+    }
+    function open(list, start) {
+      items = list || []; idx = start || 0;
+      $('#nexusLightbox').css('display', 'flex');
+      $('body').addClass('overflow-hidden');
+      render();
+    }
+    function close() {
+      $('#nexusLightbox').hide();
+      $('body').removeClass('overflow-hidden');
+    }
+    function go(d) {
+      if (!items.length) return;
+      idx = (idx + d + items.length) % items.length;
+      render();
+    }
+    function init() {
+      if (!$('#nexusLightbox').length) return;
+      $(document).off('.nexusLb')
+        .on('click.nexusLb', '[data-lightbox]', function () {
+          const $g = $(this).closest('[data-gallery]');
+          const $all = $g.length ? $g.find('[data-lightbox]') : $('[data-lightbox]');
+          const list = $all.map(function () {
+            return {
+              src:   $(this).attr('data-lb-src'),
+              title: $(this).attr('data-lb-title'),
+              sub:   $(this).attr('data-lb-sub')
+            };
+          }).get();
+          open(list, $all.index(this));
+        })
+        .on('click.nexusLb', '[data-lb-close]', close)
+        .on('click.nexusLb', '[data-lb-prev]', function () { go(-1); })
+        .on('click.nexusLb', '[data-lb-next]', function () { go(1); })
+        .on('click.nexusLb', '#nexusLightbox', function (e) { if (e.target.id === 'nexusLightbox') close(); })
+        .on('keydown.nexusLb', function (e) {
+          if (!$('#nexusLightbox').is(':visible')) return;
+          if (e.key === 'Escape') close();
+          else if (e.key === 'ArrowLeft') go(-1);
+          else if (e.key === 'ArrowRight') go(1);
+        });
+    }
+    return { init: init, open: open, close: close };
+  })();
+
+  /* ──────────────────────────────────────────────────────────
+     12. Carousel — geser .carousel-track via tombol prev/next
+     ────────────────────────────────────────────────────────── */
+  const Carousel = (function () {
+    function init() {
+      $(document).off('.nexusCar')
+        .on('click.nexusCar', '[data-carousel-prev]', function () {
+          const t = $(this).closest('[data-carousel]').find('.carousel-track')[0];
+          if (t) t.scrollBy({ left: -t.clientWidth * 0.8, behavior: 'smooth' });
+        })
+        .on('click.nexusCar', '[data-carousel-next]', function () {
+          const t = $(this).closest('[data-carousel]').find('.carousel-track')[0];
+          if (t) t.scrollBy({ left: t.clientWidth * 0.8, behavior: 'smooth' });
+        });
+    }
+    return { init: init };
+  })();
+
+  /* ──────────────────────────────────────────────────────────
+     13. Integrations — auto-init lib opsional bila global-nya ada.
+     Lib TIDAK dibundel. Muat lib-nya SEBELUM app.js, atau panggil
+     window.NexusIntegrations.init() setelah lib dimuat.
+       • ApexCharts → [data-apexchart]
+       • TomSelect  → [data-tomselect]
+       • Quill      → [data-quill]   (+ sync ke [data-quill-input])
+       • Coloris    → [data-coloris]
+       • Leaflet    → [data-map] (auto bila ada data-map-lat/lng)
+     ────────────────────────────────────────────────────────── */
+  const Integrations = (function () {
+    function apex() {
+      if (!window.ApexCharts) return;
+      $('[data-apexchart]').each(function () {
+        if (this.__apex) return;
+        try {
+          const cfg = JSON.parse(this.getAttribute('data-apexchart'));
+          const c = new ApexCharts(this, cfg);
+          c.render();
+          this.__apex = c;
+        } catch (e) { console.error('Nexus chart:', e); }
+      });
+    }
+    function tomselect() {
+      if (!window.TomSelect) return;
+      $('[data-tomselect]').each(function () {
+        if (this.tomselect) return;
+        new TomSelect(this, { placeholder: this.getAttribute('data-placeholder') || '' });
+      });
+    }
+    function quill() {
+      if (!window.Quill) return;
+      $('[data-quill]').each(function () {
+        if (this.__quill) return;
+        const q = new Quill(this, { theme: 'snow', placeholder: this.getAttribute('data-quill-placeholder') || '' });
+        this.__quill = q;
+        const $input = $(this).closest('[data-wysiwyg]').find('[data-quill-input]');
+        $input.val(q.root.innerHTML);
+        q.on('text-change', function () { $input.val(q.root.innerHTML); });
+      });
+    }
+    function coloris() {
+      if (!window.Coloris) return;
+      try { Coloris({ el: '[data-coloris]' }); } catch (e) {}
+    }
+    function leaflet() {
+      if (!window.L) return;
+      $('[data-map]').each(function () {
+        if (this.__leaflet) return;
+        const lat = parseFloat(this.getAttribute('data-map-lat'));
+        const lng = parseFloat(this.getAttribute('data-map-lng'));
+        if (isNaN(lat) || isNaN(lng)) return; // perlu koordinat untuk auto-init
+        const zoom = parseInt(this.getAttribute('data-map-zoom') || '13', 10);
+        const map = L.map(this.id).setView([lat, lng], zoom);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
+        L.marker([lat, lng]).addTo(map);
+        this.__leaflet = map;
+      });
+    }
+    function init() { apex(); tomselect(); quill(); coloris(); leaflet(); }
+    return { init: init, apex: apex, tomselect: tomselect, quill: quill, coloris: coloris, leaflet: leaflet };
+  })();
+
+  /* ──────────────────────────────────────────────────────────
      Bootstrap on DOM ready
      ────────────────────────────────────────────────────────── */
   $(function () {
@@ -345,13 +694,29 @@
     TableSort.init();
     Topbar.init();
     UserMenu.init();
+    Dropdown.init();
+    Tabs.init();
+    Accordion.init();
+    Confirm.init();
+    Wizard.init();
+    Lightbox.init();
+    Carousel.init();
+    Integrations.init();
   });
 
   /* Expose to window for inline calls */
-  window.Toast    = Toast;
-  window.Modal    = Modal;
-  window.Notif    = Notif;
-  window.Sidebar  = Sidebar;
-  window.UserMenu = UserMenu;
+  window.Toast     = Toast;
+  window.Modal     = Modal;
+  window.Notif     = Notif;
+  window.Sidebar   = Sidebar;
+  window.UserMenu  = UserMenu;
+  window.Dropdown  = Dropdown;
+  window.Tabs      = Tabs;
+  window.Accordion = Accordion;
+  window.Confirm   = Confirm;
+  window.Wizard    = Wizard;
+  window.Lightbox  = Lightbox;
+  window.Carousel  = Carousel;
+  window.NexusIntegrations = Integrations;
 
 })(jQuery);
