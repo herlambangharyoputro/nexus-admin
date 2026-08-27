@@ -65,7 +65,9 @@
 
     <div class="overflow-x-auto">
         <x-nexus::table :sortable="$sortable">
-            @isset($head)<x-slot:head>{{ $head }}</x-slot:head>@endisset
+            @isset($head)
+                <x-slot:head>{{ $head }}</x-slot:head>
+            @endisset
             {{ $slot }}
         </x-nexus::table>
     </div>

@@ -11,8 +11,7 @@
 
 <x-nexus::page-header
     title="Galeri Komponen"
-    description="Verifikasi visual seluruh komponen Nexus Admin v0.2.0."
-    :breadcrumb="[['label'=>'Dashboard','url'=>url('/')], ['label'=>'Demo']]">
+    description="Verifikasi visual seluruh komponen Nexus Admin v0.2.0.">
     <x-slot:actions>
         <x-nexus::button data-modal-open="demoModal"><x-nexus::icons.plus :size="14" /> Modal</x-nexus::button>
     </x-slot:actions>
@@ -32,19 +31,28 @@
         <x-nexus::badge>Default</x-nexus::badge>
         <x-nexus::badge color="green">Success</x-nexus::badge>
         <x-nexus::badge color="amber">Warning</x-nexus::badge>
+        <x-nexus::badge color="danger">Danger</x-nexus::badge>
         <x-nexus::chip>Filter</x-nexus::chip>
         <x-nexus::chip active>Aktif</x-nexus::chip>
         <x-nexus::kbd>Ctrl</x-nexus::kbd> <x-nexus::kbd>K</x-nexus::kbd>
         <x-nexus::tooltip text="Info tambahan"><x-nexus::badge>Hover saya</x-nexus::badge></x-nexus::tooltip>
     </div>
+    <div class="d-flex items-center gap-2 mt-4" style="flex-wrap:wrap">
+        <x-nexus::dropdown label="Aksi">
+            <a class="dropdown-item" href="#"><x-nexus::icons.edit :size="16" /> Edit</a>
+            <a class="dropdown-item" href="#"><x-nexus::icons.eye :size="16" /> Lihat</a>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item danger"><x-nexus::icons.trash :size="16" /> Hapus</button>
+        </x-nexus::dropdown>
+    </div>
 </x-nexus::card>
 
 {{-- Alerts --}}
 <x-nexus::card title="Alerts" class="mb-5">
-    <x-nexus::alert type="info" class="mb-2">Pesan informasi.</x-nexus::alert>
-    <x-nexus::alert type="success" class="mb-2">Berhasil disimpan.</x-nexus::alert>
-    <x-nexus::alert type="warning" class="mb-2">Perhatikan hal ini.</x-nexus::alert>
-    <x-nexus::alert type="error" dismissible>Terjadi kesalahan.</x-nexus::alert>
+    <x-nexus::alert type="info" class="mb-2" dismissible>Pesan informasi.</x-nexus::alert>
+    <x-nexus::alert type="success" class="mb-2" dismissible>Berhasil disimpan.</x-nexus::alert>
+    <x-nexus::alert type="warning" class="mb-2" dismissible>Perhatikan hal ini.</x-nexus::alert>
+    <x-nexus::alert type="error" class="mb-2" dismissible>Terjadi kesalahan.</x-nexus::alert>
 </x-nexus::card>
 
 {{-- Stats --}}
@@ -130,17 +138,8 @@
     </x-nexus::card>
 </div>
 
-{{-- Dropdown, Activity, Empty state --}}
-<div class="grid-3 mb-5">
-    <x-nexus::card title="Dropdown">
-        <x-nexus::dropdown label="Aksi">
-            <a class="dropdown-item" href="#"><x-nexus::icons.edit :size="16" /> Edit</a>
-            <a class="dropdown-item" href="#"><x-nexus::icons.eye :size="16" /> Lihat</a>
-            <div class="dropdown-divider"></div>
-            <button class="dropdown-item danger"><x-nexus::icons.trash :size="16" /> Hapus</button>
-        </x-nexus::dropdown>
-    </x-nexus::card>
-
+{{-- Activity, Empty state --}}
+<div class="grid-2 mb-5">
     <x-nexus::card title="Activity">
         <x-nexus::activity>
             <x-nexus::activity-item color="primary" time="2 mnt">Invoice dibuat.</x-nexus::activity-item>
@@ -162,7 +161,17 @@
         <div class="mt-2"><x-nexus::skeleton variant="text" :count="3" /></div>
     </x-nexus::card>
     <x-nexus::card title="Avatar Group">
-        <x-nexus::avatar-group :items="['Andi Pratama','Budi Santoso','Citra Dewi','Dewi Lestari','Eka Putra']" :max="4" />
+        @php
+            $team = [
+                ['name'=>'Andi Pratama','src'=>'https://i.pravatar.cc/80?img=12'],
+                ['name'=>'Budi Santoso','src'=>'https://i.pravatar.cc/80?img=15'],
+                ['name'=>'Citra Dewi','src'=>'https://i.pravatar.cc/80?img=5'],
+                ['name'=>'Dewi Lestari','src'=>'https://i.pravatar.cc/80?img=9'],
+                ['name'=>'Eka Putra'],
+            ];
+        @endphp
+        <x-nexus::avatar-group :items="$team" :max="4" />
+        <div class="mt-3"><x-nexus::avatar-group :items="$team" :max="4" size="lg" /></div>
     </x-nexus::card>
     <x-nexus::card title="Mini Stats">
         <x-nexus::mini-stat label="Hari ini" value="42" />

@@ -1,4 +1,4 @@
-{{-- 
+{{--
   Sidebar — dashboard navigation.
   Active state: dideteksi via request()->is('path*').
   Kalau pakai named routes, ganti dengan: request()->routeIs('route.name.*')
@@ -35,8 +35,8 @@
             <span class="nav-label">Pesanan</span>
         </a>
 
-        <a href="{{ url('/produk') }}"
-           class="nav-item {{ request()->is('produk*') ? 'active' : '' }}">
+        <a href="{{ url('/nexus-product') }}"
+           class="nav-item {{ request()->is('produk*') || request()->is('nexus-product') || request()->is('nexus-product/*') ? 'active' : '' }}">
             <x-nexus::icons.package />
             <span class="nav-label">Produk</span>
         </a>
@@ -47,6 +47,12 @@
            class="nav-item {{ request()->is('pengaturan*') ? 'active' : '' }}">
             <x-nexus::icons.settings />
             <span class="nav-label">Pengaturan</span>
+        </a>
+
+        <a href="{{ url('/nexus-demo') }}"
+           class="nav-item {{ request()->is('nexus-demo') || request()->is('nexus-demo/*') ? 'active' : '' }}">
+            <x-nexus::icons.eye />
+            <span class="nav-label">Demo</span>
         </a>
 
     </nav>

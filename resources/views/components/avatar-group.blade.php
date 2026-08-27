@@ -15,6 +15,7 @@
 @props([
     'items' => [],
     'max'   => 5,
+    'size'  => null,   // 'lg' → avatar lebih besar
 ])
 
 @php
@@ -28,7 +29,7 @@
     };
 @endphp
 
-<div {{ $attributes->merge(['class' => 'avatar-group']) }}>
+<div {{ $attributes->merge(['class' => 'avatar-group' . ($size === 'lg' ? ' avatar-group-lg' : '')]) }}>
     @foreach($shown as $it)
         @php
             $name = is_array($it) ? ($it['name'] ?? '') : $it;

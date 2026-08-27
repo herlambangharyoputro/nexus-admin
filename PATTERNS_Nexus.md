@@ -6,6 +6,11 @@ mengikuti resep, bukan menyusun markup dari nol.
 
 Prasyarat: lihat `GUIDELINES.md` (kontrak komponen) & `CHARTS.md` (chart/lib).
 
+> **Riwayat perubahan pola:** List/Index & Form direvisi — datatable jadi
+> client-side (tanpa `:paginator`), form jadi satu file create+edit dengan
+> layout satu kolom, dan "Tambah" jadi halaman terpisah (bukan modal).
+> Pola Detail & Dashboard belum berubah.
+
 ---
 
 ## 0. Kerangka halaman
@@ -29,6 +34,16 @@ Pasang sekali di layout (untuk dialog global): `<x-nexus::confirm-dialog />` dan
 
 `page-header → baris summary → datatable + table-actions`
 
+**Datatable = client-side.** Semua baris di-render langsung ke HTML (tanpa
+`:paginator`) — search & sort ditangani JS di browser lewat hook
+`data-table-search` / `data-sort-table` bawaan komponen `datatable`
+(prop `paginator` opsional, default `null`; kalau di-isi baru muncul
+pagination server-side — TIDAK dipakai untuk pola default ini).
+
+**Tambah data = halaman terpisah** (`{resource}.create`), BUKAN modal.
+`<x-nexus::modal-form>` tetap valid untuk kasus form super-singkat (≤3 field)
+yang sengaja diminta sebagai modal, tapi bukan default.
+
 ```blade
 @extends('nexus::layouts.app')
 @section('title', 'Pengguna')
@@ -39,7 +54,7 @@ Pasang sekali di layout (untuk dialog global): `<x-nexus::confirm-dialog />` dan
         description="Kelola akun & hak akses."
         :breadcrumb="[['label'=>'Dashboard','url'=>url('/')], ['label'=>'Pengguna']]">
         <x-slot:actions>
-            <x-nexus::button data-modal-open="addUser">
+            <x-nexus::button :href="route('users.create')">
                 <x-nexus::icons.plus :size="14" /> Tambah
             </x-nexus::button>
         </x-slot:actions>
@@ -54,7 +69,7 @@ Pasang sekali di layout (untuk dialog global): `<x-nexus::confirm-dialog />` dan
         </x-nexus::summary-card>
     </div>
 
-    <x-nexus::datatable title="Daftar Pengguna" :paginator="$users" sortable>
+    <x-nexus::datatable title="Daftar Pengguna" sortable>
         <x-slot:head>
             <th data-sort="name">Nama</th>
             <th data-sort="email">Email</th>
@@ -77,16 +92,12 @@ Pasang sekali di layout (untuk dialog global): `<x-nexus::confirm-dialog />` dan
         @endforeach
     </x-nexus::datatable>
 
-    {{-- modal tambah (opsional) --}}
-    <x-nexus::modal-form id="addUser" title="Tambah Pengguna" :action="route('users.store')">
-        <x-nexus::form.group label="Nama" for="n"><x-nexus::form.input id="n" name="name" /></x-nexus::form.group>
-        <div class="mt-4">
-            <x-nexus::form.group label="Email" for="e"><x-nexus::form.input id="e" name="email" type="email" /></x-nexus::form.group>
-        </div>
-    </x-nexus::modal-form>
-
 @endsection
 ```
+
+> Kalau `$users` besar (ribuan baris) dan render-semua-baris jadi berat,
+> pertimbangkan kembali ke `:paginator` server-side untuk resource itu saja —
+> ini pengecualian per-kasus, bukan mengubah default.
 
 ---
 
@@ -143,40 +154,55 @@ Pasang sekali di layout (untuk dialog global): `<x-nexus::confirm-dialog />` dan
 
 `page-header → card berisi form-group` (atau `form-wizard` untuk multi-langkah)
 
+**Satu file untuk create & edit** (dibedakan `isset($item)`), **layout satu
+kolom** — field berurutan ke bawah, BUKAN `.form-grid` 2 kolom. Route create
+= `{resource}.store`, edit = `{resource}.update`.
+
 ```blade
 @extends('nexus::layouts.app')
-@section('title', 'Edit Pengguna')
+@section('title', isset($user) ? 'Edit Pengguna' : 'Tambah Pengguna')
 @section('content')
 
-    <x-nexus::page-header title="Edit Pengguna"
-        :breadcrumb="[['label'=>'Pengguna','url'=>route('users.index')], ['label'=>'Edit']]" />
+    <x-nexus::page-header
+        :title="isset($user) ? 'Edit Pengguna' : 'Tambah Pengguna'"
+        :breadcrumb="[
+            ['label'=>'Pengguna','url'=>route('users.index')],
+            ['label'=>isset($user) ? 'Edit' : 'Tambah'],
+        ]" />
 
     <x-nexus::card>
-        <form method="POST" action="{{ route('users.update', $user) }}">
-            @csrf @method('PUT')
+        <form method="POST"
+              action="{{ isset($user) ? route('users.update', $user) : route('users.store') }}">
+            @csrf
+            @if(isset($user)) @method('PUT') @endif
 
-            <div class="form-grid">
-                <x-nexus::form.group label="Nama" for="name" :error="$errors->first('name')">
-                    <x-nexus::form.input id="name" name="name" :value="old('name', $user->name)" />
+            <x-nexus::form.group label="Nama" for="name" required :error="$errors->first('name')">
+                <x-nexus::form.input id="name" name="name" :value="old('name', $user->name ?? null)" />
+            </x-nexus::form.group>
+
+            <div class="mt-4">
+                <x-nexus::form.group label="Email" for="email" required :error="$errors->first('email')">
+                    <x-nexus::form.input id="email" name="email" type="email" :value="old('email', $user->email ?? null)" />
                 </x-nexus::form.group>
+            </div>
 
-                <x-nexus::form.group label="Email" for="email" :error="$errors->first('email')">
-                    <x-nexus::form.input id="email" name="email" type="email" :value="old('email', $user->email)" />
-                </x-nexus::form.group>
-
-                <x-nexus::form.group label="Peran" for="role">
+            <div class="mt-4">
+                <x-nexus::form.group label="Peran" for="role" :error="$errors->first('role')">
                     <x-nexus::form.select id="role" name="role"
-                        :options="['admin'=>'Admin','staff'=>'Staff']" :selected="$user->role" />
+                        :options="['admin'=>'Admin','staff'=>'Staff']"
+                        :selected="old('role', $user->role ?? null)" />
                 </x-nexus::form.group>
+            </div>
 
-                <x-nexus::form.group label="Catatan" full>
-                    <x-nexus::form.textarea name="notes" rows="4" />
+            <div class="mt-4">
+                <x-nexus::form.group label="Catatan" for="notes">
+                    <x-nexus::form.textarea id="notes" name="notes" rows="4" :value="old('notes', $user->notes ?? null)" />
                 </x-nexus::form.group>
             </div>
 
             <div class="d-flex justify-end gap-2 mt-5">
-                <x-nexus::button variant="outline" type="button">Batal</x-nexus::button>
-                <x-nexus::button type="submit">Simpan</x-nexus::button>
+                <x-nexus::button variant="outline" :href="route('users.index')">Batal</x-nexus::button>
+                <x-nexus::button type="submit">{{ isset($user) ? 'Perbarui' : 'Simpan' }}</x-nexus::button>
             </div>
         </form>
     </x-nexus::card>
@@ -185,6 +211,8 @@ Pasang sekali di layout (untuk dialog global): `<x-nexus::confirm-dialog />` dan
 ```
 
 Multi-langkah → ganti isi card dengan `<x-nexus::form-wizard>` (lihat komponen).
+`.form-grid` (2 kolom) masih tersedia di CSS untuk kasus khusus, tapi bukan
+lagi default form.
 
 ---
 

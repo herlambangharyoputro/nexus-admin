@@ -46,9 +46,9 @@ Halaman shell admin: `@extends('nexus::layouts.app')`. Halaman terpusat
 
 ## Pola halaman → lihat `PATTERNS_Nexus.md`
 
-- **List/Index**: `page-header` → `summary-card` (baris) → `datatable` + `table-actions`
+- **List/Index**: `page-header` → `summary-card` (baris) → `datatable` (client-side, tanpa `:paginator`) + `table-actions`. Tambah data = halaman terpisah, bukan modal.
 - **Detail**: `breadcrumb` + `page-header` → `card` info + `activity`
-- **Form**: `page-header` → `card` + `form.group`/`form.*` (atau `form-wizard`)
+- **Form**: `page-header` → `card` + `form.group`/`form.*`, satu kolom, satu file untuk create & edit (`isset($item)`). `form-wizard` untuk multi-langkah.
 - **Dashboard**: `stat-card` (baris) → `card-chart` + `card-table` → `activity`
 - **Auth**: layout `nexus::layouts.auth` + template `nexus::pages.auth.*`
 

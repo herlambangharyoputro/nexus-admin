@@ -33,6 +33,12 @@
   font-weight: 700; color: white;
 }
 .avatar-group .av:first-child { margin-left: 0; }
+.avatar-group-lg .av {
+  width: 44px; height: 44px;
+  margin-left: -10px;
+  font-size: 15px;
+  border-width: 3px;
+}
 
 /* ── Notification Dot ────────────────────────────────────── */
 .notif-dot {
@@ -52,11 +58,12 @@
   box-shadow: var(--shadow);
 }
 .card-header {
-  padding: 18px 20px 0;
+  padding: 18px 20px var(--s4);
   display: flex; align-items: center;
   justify-content: space-between;
+  border-bottom: 1px solid var(--border);
 }
-.card-title  { font-size: 14px; font-weight: 600; color: var(--text); }
+.card-title  { font-size: 14px; font-weight: 800; color: var(--text); }
 .card-body   { padding: 16px 20px 20px; }
 
 /* ── Stat Card ───────────────────────────────────────────── */
@@ -133,6 +140,7 @@
 .badge-amber  { background: var(--amber-soft); color: var(--amber); }
 .badge-blue   { background: var(--primary-soft); color: var(--primary); }
 .badge-purple { background: var(--purple-soft); color: var(--purple); }
+.badge-danger { background: var(--red); color: #fff; }
 
 /* ── Table ───────────────────────────────────────────────── */
 .data-table {
@@ -199,7 +207,7 @@
 .form-group { display: flex; flex-direction: column; gap: 6px; }
 .form-group.full { grid-column: 1 / -1; }
 
-.form-label    { font-size: 12px; font-weight: 600; color: var(--text); }
+.form-label    { font-size: 14px; font-weight: 600; color: var(--text); }
 .form-input, .form-select, .form-textarea {
   padding: 9px 12px;
   border: 1px solid var(--border);
@@ -475,10 +483,21 @@
 
 /* ── Alert / Info Box ────────────────────────────────────── */
 .alert {
-  display: flex; align-items: flex-start; gap: 12px;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  gap: var(--s2);
   padding: 14px 16px; border-radius: 10px;
   font-size: 13px; border: 1px solid transparent;
+  text-align: center;
 }
+.alert-icon { display: inline-flex; flex-shrink: 0; }
+.alert-icon svg { display: block; }
+.alert-close {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: inherit; cursor: pointer;
+  opacity: .7; font-size: 18px; line-height: 1; padding: 0;
+}
+.alert-close:hover { opacity: 1; }
 .alert-info    { background: var(--primary-soft); color: var(--primary); border-color: rgba(0, 147, 180, 0.3); }
 .alert-success { background: var(--green-soft);   color: var(--green);   border-color: rgba(0, 173, 91, 0.3); }
 .alert-warning { background: var(--amber-soft);   color: var(--amber);   border-color: rgba(228, 144, 0, 0.3); }
@@ -602,7 +621,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-md);
-  z-index: 250;
+  z-index: 1000;
   padding: 6px;
   display: none;
   animation: slideDown .18s ease;
@@ -783,6 +802,84 @@
 .auth-footer a { color: var(--primary); text-decoration: none; }
 .auth-footer a:hover { text-decoration: underline; }
 
+/* ── Input Group — input + addon(s) menjadi satu field ──────
+   Struktur:
+     .input-group
+       .form-input | .form-select          ← field utama
+       .input-group-text                   ← addon teks/ikon (non-klik)
+       .input-group-btn                    ← addon tombol (klik)
+   Addon sebelum field: letakkan sebelum .form-input, class tetap sama.
+   ────────────────────────────────────────────────────────── */
+.input-group {
+  display: flex; align-items: stretch;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--canvas);
+  overflow: hidden;
+  transition: border-color .15s, box-shadow .15s;
+}
+.input-group:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+.input-group .form-input,
+.input-group .form-select {
+  flex: 1; min-width: 0;
+  border: none; background: transparent;
+  box-shadow: none; outline: none; border-radius: 0;
+}
+.input-group .form-input:focus,
+.input-group .form-select:focus { border-color: transparent; box-shadow: none; }
+
+/* teks/ikon non-interaktif */
+.input-group-text {
+  display: flex; align-items: center; padding: 0 12px;
+  color: var(--muted); font-size: 13px; white-space: nowrap;
+  border-left: 1px solid var(--border); background: var(--canvas);
+}
+.input-group-text:first-child { border-left: none; border-right: 1px solid var(--border); }
+
+/* tombol addon (misal: show/hide password) */
+.input-group-btn {
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 11px; min-width: 38px;
+  background: none; border: none; border-left: 1px solid var(--border);
+  cursor: pointer; color: var(--muted);
+  transition: color .15s, background .15s;
+}
+.input-group-btn:hover { color: var(--text); background: var(--primary-soft); }
+.input-group-btn:first-child { border-left: none; border-right: 1px solid var(--border); }
+
+/* ── Password Toggle — ikon mata di dalam input (absolute) ── */
+.input-pw-wrap { position: relative; }
+.input-pw-wrap .form-input { padding-right: 2.5rem; width: 100%; box-sizing: border-box; }
+.pw-toggle {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); padding: 4px;
+  display: flex; align-items: center; line-height: 1;
+  transition: color .15s;
+}
+.pw-toggle:hover { color: var(--text); }
+
+/* password strength meter */
+.strength-bars { display: flex; gap: 4px; margin-top: 6px; }
+.strength-bar { height: 3px; flex: 1; border-radius: 2px; background: var(--border); transition: background .25s; }
+.strength-bar.weak   { background: var(--red); }
+.strength-bar.fair   { background: var(--amber); }
+.strength-bar.good   { background: var(--primary); }
+.strength-bar.strong { background: var(--green); }
+.strength-label { font-size: 11px; color: var(--muted); margin-top: 4px; transition: color .25s; }
+
+/* Error page */
+.error-page  { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; background: var(--canvas); }
+.error-code  { font-size: 96px; font-weight: 800; line-height: 1; color: var(--primary); letter-spacing: -2px; }
+.error-title { font-size: 22px; font-weight: 700; color: var(--text); margin: 12px 0 6px; }
+.strength-bar.fair   { background: var(--amber); }
+.strength-bar.good   { background: var(--primary); }
+.strength-bar.strong { background: var(--green); }
+.strength-label { font-size: 11px; color: var(--muted); margin-top: 4px; transition: color .25s; }
+
 /* Error page */
 .error-page  { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; background: var(--canvas); }
 .error-code  { font-size: 96px; font-weight: 800; line-height: 1; color: var(--primary); letter-spacing: -2px; }
@@ -796,4 +893,3 @@
 .chart-mount    { width: 100%; }
 .map-mount      { width: 100%; height: 360px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
 .calendar-mount { width: 100%; }
-.wysiwyg-mount  { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); }

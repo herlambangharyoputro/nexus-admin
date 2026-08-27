@@ -49,6 +49,10 @@
 {{-- Toast container (auto-injected by JS if missing, but defined here for SSR-safe markup) --}}
 @include('nexus::partials.toasts')
 
+{{-- Global dialogs (pasang sekali) --}}
+<x-nexus::confirm-dialog />
+<x-nexus::lightbox />
+
 {{-- jQuery + App JS --}}
 <script src="{{ asset('nexus/assets/js/vendor/jquery-3.7.1.min.js') }}"></script>
 <script src="{{ asset('nexus/assets/js/app.js') }}"></script>
