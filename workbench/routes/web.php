@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/nexus/assets/{path}', function (string $path) {
     $base = realpath(__DIR__ . '/../../resources/assets');
     $file = realpath($base . '/' . $path);
-    abort_unless($file && str_starts_with($file, $base) && is_file($file), 404);
+    abort_unless($file && str_starts_with($file, $base . DIRECTORY_SEPARATOR) && is_file($file), 404);
 
     $types = ['css' => 'text/css', 'js' => 'application/javascript', 'svg' => 'image/svg+xml', 'png' => 'image/png'];
 
