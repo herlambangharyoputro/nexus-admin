@@ -1,21 +1,34 @@
-{{-- 
+{{--
   Topbar — sticky header.
-  
-  Variables yang dipakai:
-    @section('page-title')    — judul utama breadcrumb (default: 'Dashboard')
-    @section('breadcrumb')    — sub-judul setelah / (optional)
-    $userName                 — nama user (default: 'Andi Pratama')
-    $userRole                 — role user (default: 'Admin')
-    $userInitials             — initial untuk avatar (default: auto dari $userName)
 
-  Nanti saat auth ready, ganti default-nya dengan auth()->user().
+  Sections:
+    @section('page-title')    — judul utama breadcrumb (default: 'Dashboard')
+    @section('breadcrumb')    — sub-judul setelah / (opsional)
+
+  Data user (urutan prioritas):
+    1. variabel $userName / $userRole / $userInitials (mis. dari View::composer)
+    2. auth()->user(): name; peran dari role_label ?? role
+    3. contoh 'Andi Pratama' / 'Admin' (hanya bila tamu, untuk halaman demo)
+
+  Titik ekstensi (v0.5) — TIDAK perlu meng-override file ini:
+    resources/views/nexus/topbar-actions.blade.php → tombol sebelum menu user
+        (default: partials/topbar-actions-default = tombol notifikasi)
+    resources/views/nexus/user-menu.blade.php      → isi dropdown menu user
+        (default: partials/user-menu-default = Profil, Pengaturan, Keluar)
 --}}
 @php
-    // Default dummy data — nanti override dari controller atau auth()
-    $userName     = $userName     ?? 'Andi Pratama';
-    $userRole     = $userRole     ?? 'Admin';
+    $authUser = auth()->check() ? auth()->user() : null;
+    $roleOf   = function ($u) {
+        $role = $u->role_label ?? $u->role ?? null;
+        if ($role instanceof \BackedEnum) $role = $role->value;
+        return is_scalar($role) ? (string) $role : null;
+    };
+
+    $userName     = $userName ?? ($authUser->name ?? 'Andi Pratama');
+    $userRole     = $userRole ?? ($authUser ? $roleOf($authUser) : 'Admin');
     $userInitials = $userInitials ?? collect(explode(' ', trim($userName)))
-                        ->map(fn($p) => strtoupper(substr($p, 0, 1)))
+                        ->filter()
+                        ->map(fn($p) => mb_strtoupper(mb_substr($p, 0, 1)))
                         ->take(2)
                         ->implode('');
 @endphp
@@ -38,11 +51,7 @@
     {{-- Right-side actions --}}
     <div class="topbar-right">
 
-        {{-- Notifications --}}
-        <button class="topbar-btn" data-action="notifications" aria-label="Notifications">
-            <x-nexus::icons.bell />
-            <span class="notif-dot"></span>
-        </button>
+        @includeFirst(['nexus.topbar-actions', 'nexus::partials.topbar-actions-default'])
 
         {{-- User Menu (avatar + name + role + dropdown) --}}
         <div class="user-menu" data-user-menu aria-haspopup="true" aria-expanded="false">
@@ -51,32 +60,18 @@
 
             <div class="user-menu-info">
                 <span class="user-menu-name">{{ $userName }}</span>
-                <span class="user-menu-role">{{ $userRole }}</span>
+                @if($userRole)<span class="user-menu-role">{{ $userRole }}</span>@endif
             </div>
 
             {{-- Dropdown --}}
             <div class="dropdown-menu" data-user-dropdown role="menu">
-
-                <a href="{{ url('/profile') }}" class="dropdown-item" role="menuitem">
-                    <x-nexus::icons.user />
-                    <span>Profile</span>
-                </a>
-
-                <a href="{{ url('/pengaturan') }}" class="dropdown-item" role="menuitem">
-                    <x-nexus::icons.settings size="16" />
-                    <span>Setting</span>
-                </a>
-
+                <div class="dropdown-header">
+                    <strong>{{ $userName }}</strong>
+                    @if($userRole)<span>{{ $userRole }}</span>@endif
+                </div>
                 <div class="dropdown-divider"></div>
 
-                <a href="{{ url('/logout') }}" 
-                   class="dropdown-item danger" 
-                   role="menuitem"
-                   data-action="logout">
-                    <x-nexus::icons.log-out />
-                    <span>Logout</span>
-                </a>
-
+                @includeFirst(['nexus.user-menu', 'nexus::partials.user-menu-default'])
             </div>
 
         </div>

@@ -1,60 +1,21 @@
 {{--
-  Sidebar — dashboard navigation.
-  Active state: dideteksi via request()->is('path*').
-  Kalau pakai named routes, ganti dengan: request()->routeIs('route.name.*')
+  Sidebar — dashboard navigation (kontrak shell: .sidebar > .sidebar-nav).
+
+  Titik ekstensi (v0.5) — TIDAK perlu meng-override file ini:
+    resources/views/nexus/brand.blade.php        → logo + nama (default: partials/brand-default)
+    resources/views/nexus/sidebar-nav.blade.php  → item navigasi (default: partials/sidebar-nav-default)
+  Active state: request()->routeIs('nama.*') atau request()->is('path*').
 --}}
 <aside class="sidebar">
 
     {{-- Header dengan logo --}}
     <div class="sidebar-header">
-        <div class="logo-icon">NX</div>
-        <div class="logo-text">Nexus Admin</div>
+        @includeFirst(['nexus.brand', 'nexus::partials.brand-default'])
     </div>
 
     {{-- Nav items --}}
-    <nav class="sidebar-nav">
-
-        <div class="nav-section-label">Menu Utama</div>
-
-        <a href="{{ url('/dashboard') }}"
-           class="nav-item {{ request()->is('dashboard') || request()->is('/') ? 'active' : '' }}">
-            <x-nexus::icons.home />
-            <span class="nav-label">Dashboard</span>
-        </a>
-
-        <a href="{{ url('/pengguna') }}"
-           class="nav-item {{ request()->is('pengguna*') ? 'active' : '' }}">
-            <x-nexus::icons.users />
-            <span class="nav-label">Pengguna</span>
-            <span class="nav-badge">3</span>
-        </a>
-
-        <a href="{{ url('/pesanan') }}"
-           class="nav-item {{ request()->is('pesanan*') ? 'active' : '' }}">
-            <x-nexus::icons.shopping-bag />
-            <span class="nav-label">Pesanan</span>
-        </a>
-
-        <a href="{{ url('/nexus-product') }}"
-           class="nav-item {{ request()->is('produk*') || request()->is('nexus-product') || request()->is('nexus-product/*') ? 'active' : '' }}">
-            <x-nexus::icons.package />
-            <span class="nav-label">Produk</span>
-        </a>
-
-        <div class="nav-section-label">Lainnya</div>
-
-        <a href="{{ url('/pengaturan') }}"
-           class="nav-item {{ request()->is('pengaturan*') ? 'active' : '' }}">
-            <x-nexus::icons.settings />
-            <span class="nav-label">Pengaturan</span>
-        </a>
-
-        <a href="{{ url('/nexus-demo') }}"
-           class="nav-item {{ request()->is('nexus-demo') || request()->is('nexus-demo/*') ? 'active' : '' }}">
-            <x-nexus::icons.eye />
-            <span class="nav-label">Demo</span>
-        </a>
-
+    <nav class="sidebar-nav" aria-label="Navigasi utama">
+        @includeFirst(['nexus.sidebar-nav', 'nexus::partials.sidebar-nav-default'])
     </nav>
 
 </aside>
