@@ -2,8 +2,8 @@
   Icon Download — arrow-down into tray.
 
   Usage:
-    <x-nexus::icons.download />
-    <x-nexus::icons.download :size="18" class="text-primary" />
+    x-nexus::icons.download />
+    x-nexus::icons.download :size="18" class="text-primary" />
 
   Props:
     size  : 16 (default)

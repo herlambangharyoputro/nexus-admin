@@ -1,4 +1,7 @@
 {{--
+  @deprecated 0.5.0 — gunakan x-nexus::row-actions (dropdown ⋮ yang tidak terpotong & seragam).
+  Tetap berfungsi; dijadwalkan dihapus paling cepat di 1.0. Lihat MIGRATION-0.5.md.
+
   Table Actions — grup tombol aksi baris (lihat / edit / hapus).
 
   Usage:
