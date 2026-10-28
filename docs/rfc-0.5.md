@@ -1,6 +1,6 @@
 # RFC 0.5 — Satu sumber pola Index · Form · Detail (responsive-first)
 
-Status: **DRAFT — menunggu persetujuan** · Target: `v0.5.0` (minor, additive, backward-compatible)
+Status: **DISETUJUI** (default §7 dipakai: kartu di HP, sidebar < 900px, "Simpan Perubahan", judul di kartu) · Target: `v0.5.0` (minor, additive, backward-compatible)
 Consumer acuan: `herlambangharyoputro/simantara` (Laravel 12, terkunci di `09e76bb` ≈ v0.1.0).
 
 ---
@@ -416,3 +416,19 @@ di CHANGELOG bagian *Deprecated*; dijadwalkan dihapus paling cepat di 1.0.
 3. Label edit: **"Simpan Perubahan"** (default).
 4. Komponen halaman memakai judul di dalam kartu (pola simantara) dan `page-header` tetap
    opsional untuk breadcrumb/deskripsi panjang — **default ya**.
+
+---
+
+## 8. Catatan implementasi (setelah persetujuan)
+
+Penyimpangan/penambahan kecil dari usulan di atas, ditemukan saat verifikasi:
+
+- **Tablet (600–899px)**: tabel index tetap tabel (scroll di dalam kontainer) dengan
+  **kolom aksi menempel di kanan** (`position: sticky`) agar ⋮ selalu terlihat.
+- **Menu mengambang** mengikuti tombolnya saat halaman di-scroll (bukan langsung
+  ditutup); ditutup bila tombol keluar layar.
+- **Kolom bersortir di HP** tampil sebagai chip di atas kartu (sortir tetap tersedia).
+- **Workbench** (`testbench.yaml`, `workbench/routes/web.php`) ditambahkan untuk
+  menyajikan halaman demo saat pengembangan paket; tidak dimuat consumer.
+- `form.select` placeholder kini dapat dipilih (nilai `""`) — dicatat di CHANGELOG
+  *Changed* sebagai risiko kecil.

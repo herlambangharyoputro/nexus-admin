@@ -6,10 +6,10 @@ mengikuti resep, bukan menyusun markup dari nol.
 
 Prasyarat: lihat `GUIDELINES.md` (kontrak komponen) & `CHARTS.md` (chart/lib).
 
-> **Riwayat perubahan pola:** List/Index & Form direvisi — datatable jadi
-> client-side (tanpa `:paginator`), form jadi satu file create+edit dengan
-> layout satu kolom, dan "Tambah" jadi halaman terpisah (bukan modal).
-> Pola Detail & Dashboard belum berubah.
+> **Riwayat perubahan pola:** v0.5 menjadikan `index-page`, `form-page`, dan
+> `detail-page` satu-satunya pola halaman (server-side, responsive-first).
+> `datatable` & `table-actions` deprecated (tetap berfungsi). Aturan lengkap:
+> `GUIDELINES.md` §9 (anatomi) & §10 (kontrak responsive).
 
 ---
 
@@ -20,199 +20,148 @@ Setiap halaman dalam shell admin meng-`@extends('nexus::layouts.app')`:
 ```blade
 @extends('nexus::layouts.app')
 @section('title', 'Judul Tab')
+@section('page-title', 'Judul Topbar')
 @section('content')
-    {{-- pola halaman di sini --}}
+    {{-- index-page | form-page | detail-page --}}
 @endsection
 ```
 
-Pasang sekali di layout (untuk dialog global): `<x-nexus::confirm-dialog />` dan
-`<x-nexus::lightbox />` sebelum `</body>`.
+Layout sudah memasang `<x-nexus::confirm-dialog />` dan `<x-nexus::lightbox />`.
+Konten aplikasi di shell (logo, nav, menu user, favicon) lewat titik ekstensi
+`resources/views/nexus/*.blade.php` — lihat `GUIDELINES.md` §6.
 
 ---
 
-## 1. Halaman List / Index
+## 1. Halaman List / Index — `index-page`
 
-`page-header → baris summary → datatable + table-actions`
+**Server-side**: cari, filter, sortir, dan paginasi oleh controller.
+**Tambah data = halaman terpisah** (`{resource}.create`), bukan modal.
 
-**Datatable = client-side.** Semua baris di-render langsung ke HTML (tanpa
-`:paginator`) — search & sort ditangani JS di browser lewat hook
-`data-table-search` / `data-sort-table` bawaan komponen `datatable`
-(prop `paginator` opsional, default `null`; kalau di-isi baru muncul
-pagination server-side — TIDAK dipakai untuk pola default ini).
+```php
+// Controller
+public function index(Request $request)
+{
+    $sortable = ['nama' => 'nama', 'kode' => 'kode_aset', 'harga' => 'harga_total']; // WAJIB whitelist
 
-**Tambah data = halaman terpisah** (`{resource}.create`), BUKAN modal.
-`<x-nexus::modal-form>` tetap valid untuk kasus form super-singkat (≤3 field)
-yang sengaja diminta sebagai modal, tapi bukan default.
+    $asets = Aset::query()
+        ->when($request->search, fn ($q, $s) => $q->where(fn ($w) => $w->where('nama', 'like', "%{$s}%")->orWhere('kode_aset', 'like', "%{$s}%")))
+        ->when($request->kategori_id, fn ($q, $id) => $q->where('kategori_id', $id))
+        ->orderBy($sortable[$request->sort] ?? 'created_at', $request->dir === 'desc' ? 'desc' : 'asc')
+        ->paginate(15);
 
-```blade
-@extends('nexus::layouts.app')
-@section('title', 'Pengguna')
-@section('content')
-
-    <x-nexus::page-header
-        title="Pengguna"
-        description="Kelola akun & hak akses."
-        :breadcrumb="[['label'=>'Dashboard','url'=>url('/')], ['label'=>'Pengguna']]">
-        <x-slot:actions>
-            <x-nexus::button :href="route('users.create')">
-                <x-nexus::icons.plus :size="14" /> Tambah
-            </x-nexus::button>
-        </x-slot:actions>
-    </x-nexus::page-header>
-
-    <div class="stats-grid mb-5">
-        <x-nexus::summary-card label="Total" value="1.247" icon-color="primary">
-            <x-slot:icon><x-nexus::icons.users /></x-slot:icon>
-        </x-nexus::summary-card>
-        <x-nexus::summary-card label="Aktif" value="980" icon-color="green" change="+4%" change-direction="up">
-            <x-slot:icon><x-nexus::icons.user /></x-slot:icon>
-        </x-nexus::summary-card>
-    </div>
-
-    <x-nexus::datatable title="Daftar Pengguna" sortable>
-        <x-slot:head>
-            <th data-sort="name">Nama</th>
-            <th data-sort="email">Email</th>
-            <th>Peran</th>
-            <th style="text-align:right">Aksi</th>
-        </x-slot:head>
-
-        @foreach($users as $u)
-            <tr>
-                <td>{{ $u->name }}</td>
-                <td>{{ $u->email }}</td>
-                <td><x-nexus::badge>{{ $u->role }}</x-nexus::badge></td>
-                <td>
-                    <x-nexus::table-actions
-                        :view="route('users.show', $u)"
-                        :edit="route('users.edit', $u)"
-                        :delete="route('users.destroy', $u)" />
-                </td>
-            </tr>
-        @endforeach
-    </x-nexus::datatable>
-
-@endsection
+    return view('aset.index', ['asets' => $asets, 'kategoriOptions' => Kategori::pluck('nama', 'id')]);
+}
 ```
 
-> Kalau `$users` besar (ribuan baris) dan render-semua-baris jadi berat,
-> pertimbangkan kembali ke `:paginator` server-side untuk resource itu saja —
-> ini pengecualian per-kasus, bukan mengubah default.
+```blade
+<x-nexus::index-page
+    title="Daftar Aset" :count="true" :paginator="$asets"
+    :columns="[
+        ['label' => 'Aset', 'sort' => 'nama'],
+        ['label' => 'Kode', 'sort' => 'kode'],
+        'Lokasi',
+        ['label' => 'Harga', 'sort' => 'harga', 'align' => 'end'],
+        ['label' => 'Aksi'],
+    ]"
+    search-placeholder="Nama / kode aset…"
+    :create-url="route('aset.create')" create-label="Tambah Aset"
+    empty="Belum ada data aset.">
+
+    <x-slot:filters>
+        <x-nexus::form.select name="kategori_id" :options="$kategoriOptions"
+            placeholder="Semua Kategori" :selected="request('kategori_id')" aria-label="Kategori" />
+    </x-slot:filters>
+
+    @foreach($asets as $a)
+        <tr>
+            <td>{{ $a->nama }}</td>
+            <td><code>{{ $a->kode_aset }}</code></td>
+            <td>{{ $a->lokasi?->nama }}</td>
+            <td class="cell-end">{{ $a->harga_total_format }}</td>
+            <td class="cell-end">
+                <x-nexus::row-actions :view="route('aset.show', $a)" :edit="route('aset.edit', $a)"
+                    :delete="route('aset.destroy', $a)" delete-confirm="Hapus aset {{ $a->kode_aset }}?" />
+            </td>
+        </tr>
+    @endforeach
+</x-nexus::index-page>
+```
+
+Yang terjadi otomatis: tombol Tambah, toolbar (cari + filter + Cari/Reset), header
+sortir dengan `aria-sort`, empty state "belum ada data" vs "tidak cocok", flash
+sesi, pagination membawa query string, dan **kartu per baris di HP**.
+
+Pagination `->links()` di tempat lain: `Paginator::defaultView('nexus::pagination.links')`.
 
 ---
 
-## 2. Halaman Detail
-
-`breadcrumb + page-header → grid: kartu info + kartu aktivitas`
+## 2. Halaman Detail — `detail-page`
 
 ```blade
-@extends('nexus::layouts.app')
-@section('title', $user->name)
-@section('content')
+<x-nexus::detail-page :title="$aset->nama" :description="$aset->kode_aset" :back="route('aset.index')">
+    <x-slot:actions>
+        <x-nexus::button variant="outline" :href="route('aset.edit', $aset)">Edit</x-nexus::button>
+        <x-nexus::row-actions label="Aksi lain" :delete="route('aset.destroy', $aset)" />
+    </x-slot:actions>
 
-    <x-nexus::page-header
-        :title="$user->name"
-        description="Detail & riwayat pengguna."
-        :breadcrumb="[
-            ['label'=>'Dashboard','url'=>url('/')],
-            ['label'=>'Pengguna','url'=>route('users.index')],
-            ['label'=>$user->name],
-        ]">
-        <x-slot:actions>
-            <x-nexus::button variant="outline" :href="route('users.edit',$user)">Edit</x-nexus::button>
-        </x-slot:actions>
-    </x-nexus::page-header>
+    <x-nexus::description-list>
+        <x-nexus::description-item label="Kategori" :value="$aset->kategori?->nama" />
+        <x-nexus::description-item label="Kondisi"><x-nexus::badge color="green">Baik</x-nexus::badge></x-nexus::description-item>
+        <x-nexus::description-item label="Deskripsi" full :value="$aset->deskripsi" />
+    </x-nexus::description-list>
 
-    <div class="grid-2">
-        <x-nexus::card title="Informasi">
-            <div class="d-flex items-center gap-4 mb-4">
-                <x-nexus::avatar :name="$user->name" size="lg" />
-                <div>
-                    <div class="font-bold">{{ $user->name }}</div>
-                    <div class="text-sm text-muted">{{ $user->email }}</div>
-                </div>
-            </div>
-            <x-nexus::divider />
-            <x-nexus::mini-stat label="Bergabung" :value="$user->created_at->format('d M Y')" />
-            <x-nexus::mini-stat label="Status" value="Aktif" color="green" />
-        </x-nexus::card>
-
-        <x-nexus::card title="Aktivitas Terbaru">
-            <x-nexus::activity>
-                <x-nexus::activity-item color="primary" time="2 menit lalu">Membuat invoice <strong>#INV-021</strong>.</x-nexus::activity-item>
-                <x-nexus::activity-item color="green" time="1 jam lalu">Pembayaran diterima.</x-nexus::activity-item>
-            </x-nexus::activity>
-        </x-nexus::card>
-    </div>
-
-@endsection
+    <x-slot:aside><x-nexus::card title="Foto"><img src="{{ $aset->foto_url }}" alt=""></x-nexus::card></x-slot:aside>
+    <x-slot:tabs>
+        <x-nexus::tabs :tabs="['riwayat' => 'Riwayat']" active="riwayat">
+            <x-nexus::tab-pane name="riwayat" active>…</x-nexus::tab-pane>
+        </x-nexus::tabs>
+    </x-slot:tabs>
+</x-nexus::detail-page>
 ```
 
 ---
 
-## 3. Halaman Form
+## 3. Halaman Form — `form-page` (satu file create & edit)
 
-`page-header → card berisi form-group` (atau `form-wizard` untuk multi-langkah)
-
-**Satu file untuk create & edit** (dibedakan `isset($item)`), **layout satu
-kolom** — field berurutan ke bawah, BUKAN `.form-grid` 2 kolom. Route create
-= `{resource}.store`, edit = `{resource}.update`.
-
-```blade
-@extends('nexus::layouts.app')
-@section('title', isset($user) ? 'Edit Pengguna' : 'Tambah Pengguna')
-@section('content')
-
-    <x-nexus::page-header
-        :title="isset($user) ? 'Edit Pengguna' : 'Tambah Pengguna'"
-        :breadcrumb="[
-            ['label'=>'Pengguna','url'=>route('users.index')],
-            ['label'=>isset($user) ? 'Edit' : 'Tambah'],
-        ]" />
-
-    <x-nexus::card>
-        <form method="POST"
-              action="{{ isset($user) ? route('users.update', $user) : route('users.store') }}">
-            @csrf
-            @if(isset($user)) @method('PUT') @endif
-
-            <x-nexus::form.group label="Nama" for="name" required :error="$errors->first('name')">
-                <x-nexus::form.input id="name" name="name" :value="old('name', $user->name ?? null)" />
-            </x-nexus::form.group>
-
-            <div class="mt-4">
-                <x-nexus::form.group label="Email" for="email" required :error="$errors->first('email')">
-                    <x-nexus::form.input id="email" name="email" type="email" :value="old('email', $user->email ?? null)" />
-                </x-nexus::form.group>
-            </div>
-
-            <div class="mt-4">
-                <x-nexus::form.group label="Peran" for="role" :error="$errors->first('role')">
-                    <x-nexus::form.select id="role" name="role"
-                        :options="['admin'=>'Admin','staff'=>'Staff']"
-                        :selected="old('role', $user->role ?? null)" />
-                </x-nexus::form.group>
-            </div>
-
-            <div class="mt-4">
-                <x-nexus::form.group label="Catatan" for="notes">
-                    <x-nexus::form.textarea id="notes" name="notes" rows="4" :value="old('notes', $user->notes ?? null)" />
-                </x-nexus::form.group>
-            </div>
-
-            <div class="d-flex justify-end gap-2 mt-5">
-                <x-nexus::button variant="outline" :href="route('users.index')">Batal</x-nexus::button>
-                <x-nexus::button type="submit">{{ isset($user) ? 'Perbarui' : 'Simpan' }}</x-nexus::button>
-            </div>
-        </form>
-    </x-nexus::card>
-
-@endsection
+```php
+public function create() { return view('lokasi.form'); }
+public function edit(Lokasi $lokasi) { return view('lokasi.form', ['item' => $lokasi]); }
 ```
 
-Multi-langkah → ganti isi card dengan `<x-nexus::form-wizard>` (lihat komponen).
-`.form-grid` (2 kolom) masih tersedia di CSS untuk kasus khusus, tapi bukan
-lagi default form.
+```blade
+<x-nexus::form-page
+    :title="isset($item) ? 'Edit Lokasi' : 'Tambah Lokasi'"
+    :action="isset($item) ? route('lokasi.update', $item) : route('lokasi.store')"
+    :model="$item ?? null"
+    :cancel="route('lokasi.index')"
+    size="md" files>
+
+    <x-nexus::form.group label="Kode" name="kode" required hint="Contoh: GD-A-LT1-R01">
+        <x-nexus::form.input name="kode" maxlength="20" />
+    </x-nexus::form.group>
+
+    <x-nexus::form-grid>   {{-- pasangan field pendek, runtuh di HP --}}
+        <x-nexus::form.group label="Gedung" name="gedung"><x-nexus::form.input name="gedung" /></x-nexus::form.group>
+        <x-nexus::form.group label="Lantai" name="lantai"><x-nexus::form.input name="lantai" /></x-nexus::form.group>
+    </x-nexus::form-grid>
+
+    <x-nexus::form.group label="Peminjaman" name="bisa_dipinjam">
+        <x-nexus::form.checkbox name="bisa_dipinjam" label="Ya, boleh dipinjam" unchecked="0" />
+    </x-nexus::form.group>
+
+    <x-nexus::form.group label="Foto" name="foto">
+        <x-nexus::form.file name="foto" accept="image/jpeg,image/png" formats="JPG/PNG" max-size="3 MB"
+            preview :current="$item?->foto_url" />
+    </x-nexus::form.group>
+</x-nexus::form-page>
+```
+
+Otomatis: `@csrf`, `@method('PUT')` saat edit, nilai `old()` → model, error per
+field + `is-invalid` + `aria-*`, ringkasan semua error (bertaut ke field), footer
+**Simpan / Simpan Perubahan** + **Batal** (lebar penuh di HP).
+
+Multi-langkah → `<x-nexus::form-wizard>` di dalam `form-page`.
+Form super-singkat (≤3 field) yang sengaja diminta sebagai modal → `modal-form`.
 
 ---
 
@@ -274,6 +223,7 @@ Halaman 404: salin `nexus::pages.errors.404` → `resources/views/errors/404.bla
 
 ## Catatan grid
 
-Kelas grid yang dipakai resep (sudah ada di utilities/layout): `stats-grid`
-(KPI 4-kolom), `grid-2` (2 kolom responsif), `form-grid` (form 2-kolom; item
-`.full` span penuh). Bila kelas berbeda di versi CSS-mu, sesuaikan.
+Kelas grid yang dipakai resep: `stats-grid` (KPI 4 → 2 kolom < 900px),
+`grid-2` (1 kolom < 600px), `grid-3` (2 kolom < 900px, 1 kolom < 600px). Untuk form
+pakai komponen `<x-nexus::form-grid cols="2|3">` (bukan kelas/inline grid). Jangan
+menulis `style="display:grid…"` — lihat `GUIDELINES.md` §9–10.

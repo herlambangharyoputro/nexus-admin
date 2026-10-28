@@ -296,4 +296,32 @@ class FormComponentsTest extends TestCase
         $this->assertMatchesRegularExpression('/<div class="page-pattern form-page page-size-md mb-5"/', $html);
         $this->assertMatchesRegularExpression('/<form[^>]+id="frm"[^>]*novalidate/s', $html);
     }
+
+    /** Contoh "sesudah" di MIGRATION-0.5.md §3 harus tetap valid. */
+    public function test_migration_example_lokasi_form_renders_for_create_and_edit(): void
+    {
+        $doc = file_get_contents(__DIR__ . '/../../MIGRATION-0.5.md');
+        preg_match('/### Sesudah.*?```blade\n(.*?)```/s', $doc, $m);
+        $view = $m[1];
+        $view = preg_replace('/@extends.*?@section\(\'content\'\)\n/s', '', $view);
+        $view = str_replace('@endsection', '', $view);
+        \Illuminate\Support\Facades\Route::get('/lokasi', fn () => '')->name('lokasi.index');
+        \Illuminate\Support\Facades\Route::post('/lokasi', fn () => '')->name('lokasi.store');
+        \Illuminate\Support\Facades\Route::put('/lokasi/{lokasi}', fn () => '')->name('lokasi.update');
+        app('router')->getRoutes()->refreshNameLookups();
+
+        $create = $this->render($view);
+        $this->assertStringContainsString('action="http://localhost/lokasi"', $create);
+        $this->assertStringContainsString('>Simpan</button>', $create);
+        $this->assertStringContainsString('class="form-grid form-grid-2"', $create);
+
+        $this->withErrors(['kode' => ['Kode wajib diisi.']]);
+        $edit = $this->render($view, ['lokasi' => $this->lokasi(['gedung' => 'Gedung A', 'foto_url' => '/f.jpg'])]);
+        $this->assertStringContainsString('value="PUT"', $edit);
+        $this->assertStringContainsString('value="Gedung A"', $edit);
+        $this->assertStringContainsString('>Simpan Perubahan</button>', $edit);
+        $this->assertStringContainsString('<a href="#kode">Kode wajib diisi.</a>', $edit);
+        $this->assertStringContainsString('src="/f.jpg"', $edit);
+        $this->assertMatchesRegularExpression('/name="bisa_dipinjam"[^>]*checked/s', $edit);
+    }
 }

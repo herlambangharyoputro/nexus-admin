@@ -1,6 +1,6 @@
 ---
 name: nexus-admin-page-builder
-description: Gunakan skill ini setiap kali membuat, mengedit, atau menambah halaman admin (index/list, create, edit, show/detail) pada aplikasi Laravel yang memakai package nexus-admin (namespace view "nexus::", komponen <x-nexus::...>) — meskipun user tidak menyebut kata "nexus-admin" secara eksplisit. Trigger juga saat user minta "buat halaman CRUD", "buat halaman admin untuk [resource]", "tabel data", "form tambah/edit", atau menyebut komponen seperti page-header, datatable, card, badge. Skill ini memastikan halaman baru konsisten secara struktur dengan halaman admin yang sudah ada, bukan disusun ulang dari nol tiap kali.
+description: Gunakan skill ini setiap kali membuat, mengedit, atau menambah halaman admin (index/list, create, edit, show/detail) pada aplikasi Laravel yang memakai package nexus-admin (namespace view "nexus::", komponen <x-nexus::...>) — meskipun user tidak menyebut kata "nexus-admin" secara eksplisit. Trigger juga saat user minta "buat halaman CRUD", "buat halaman admin untuk [resource]", "tabel data", "form tambah/edit", atau menyebut komponen seperti index-page, form-page, detail-page, row-actions, page-header, card, badge. Skill ini memastikan halaman baru konsisten secara struktur dengan halaman admin yang sudah ada, bukan disusun ulang dari nol tiap kali.
 ---
 
 # Nexus Admin — Page Builder
@@ -9,77 +9,81 @@ Package presentation-layer Laravel (Blade views + CSS pre-compiled) dengan
 namespace komponen `<x-nexus::...>` (didaftarkan via `loadViewsFrom(..., 'nexus')`).
 Semua komponen di `resources/views/components/`.
 
+## Aturan #0 — WAJIB (v0.5)
+
+1. **Halaman index/form/detail baru WAJIB memakai `<x-nexus::index-page>`,
+   `<x-nexus::form-page>`, `<x-nexus::detail-page>`.** Tidak ada pengecualian
+   "cuma halaman kecil".
+2. **DILARANG `style="…"` untuk layout** (grid, flex, lebar/`max-width`, margin,
+   padding) dan **DILARANG blok `<style>` per halaman.** Butuh pola yang belum ada →
+   tambahkan ke paket nexus-admin, jangan di view aplikasi.
+3. **DILARANG menulis manual** yang sudah otomatis: `@csrf`/`@method` di form-page,
+   `$errors->first()`, `@error`, `old()`, kelas `is-invalid`, penanda `*`, alert flash,
+   tombol Simpan/Batal, empty state, pagination.
+4. **DILARANG** meng-override view paket (`resources/views/vendor/nexus/...`). Konten
+   shell aplikasi (logo, nav, menu user, favicon) → `resources/views/nexus/*.blade.php`
+   (GUIDELINES §6).
+5. `datatable` dan `table-actions` **deprecated** — jangan dipakai di halaman baru.
+
 ## Aturan #1 — JANGAN susun struktur halaman dari nol
 
-Untuk 3 tipe halaman yang berulang (index/list, form create-edit, show/detail),
-**SELALU mulai dari skeleton di `assets/`**, bukan menyusun sendiri dari deskripsi
-komponen di bawah. Ini yang membuat halaman konsisten lintas resource dan lintas
-proyek, walau dibuat di sesi/percakapan yang berbeda.
+**SELALU mulai dari skeleton di `assets/`**, isi HANYA bagian `{{-- PLACEHOLDER --}}`.
 
-| Kebutuhan halaman | Skeleton |
-|---|---|
-| Daftar/tabel data (index) | `assets/page-index.blade.php` |
-| Tambah / edit data | `assets/page-form.blade.php` |
-| Detail read-only (show) | `assets/page-show.blade.php` |
+| Kebutuhan halaman | Skeleton | Komponen inti |
+|---|---|---|
+| Daftar/tabel data (index) | `assets/page-index.blade.php` | `index-page` + `row-actions` |
+| Tambah / edit data (SATU file) | `assets/page-form.blade.php` | `form-page` + `form.*` |
+| Detail read-only (show) | `assets/page-show.blade.php` | `detail-page` + `description-list` |
 
-Cara pakai: copy file skeleton ke `resources/views/{resource}/{nama}.blade.php`,
-lalu isi HANYA bagian yang ditandai `{{-- PLACEHOLDER --}}`. Jangan mengubah
-urutan elemen, jangan hapus wrapper komponen (page-header, card, dll), jangan
-mengganti komponen dengan HTML mentah kecuali skeleton sendiri menyediakan opsi itu.
+Keputusan struktural yang SUDAH DIFIKS (jangan diubah per-halaman):
+- Judul halaman (h1) ada di kartu komponen halaman; topbar diisi `@section('page-title')`
+  (+ `@section('breadcrumb')`).
+- Index **server-side**: `?search=`, filter, `?sort=&dir=` (controller whitelist kolom), paginate.
+- Kolom aksi tabel **selalu** `<x-nexus::row-actions :view :edit :delete>` (menu ⋮).
+- Form create/edit: SATU FILE, `form-page :model="$item ?? null"`, layout SATU KOLOM.
+  `form-grid` hanya untuk pasangan field pendek berkaitan (GUIDELINES §9.2).
+- Label tombol: **Tambah {Resource}**, **Simpan**, **Simpan Perubahan**, **Batal**,
+  **Hapus**, **Kembali**.
+- Di HP (< 600px) tabel otomatis jadi kartu, form & modal penuh lebar — jangan
+  menambal dengan CSS sendiri.
 
-Keputusan struktural yang SUDAH DIFIKS di skeleton (jangan diubah per-halaman):
-- Breadcrumb + judul halaman selalu via `<x-nexus::page-header>`, di LUAR card, di atas konten.
-- Tombol aksi utama (Tambah/Simpan) selalu di kanan atas / kanan bawah — lihat skeleton masing-masing.
-- Tabel index selalu **client-side** (semua baris di-render ke HTML, search & sort ditangani JS
-  di browser via `data-table-search` / `data-sort-table` — BUKAN AJAX server-side).
-- Kolom aksi tabel: ≤4 kolom data → `<x-nexus::table-actions>` (icon button).
-  \>4 kolom data → `<x-nexus::dropdown>`. Tombol Delete SELALU `variant="danger"`.
-- Form create/edit: SATU FILE untuk keduanya (`isset($item)`), layout SATU KOLOM
-  (field berurutan ke bawah, bukan `.form-grid` 2 kolom).
+## Aturan #2 — Kosakata komponen
 
-## Aturan #2 — Kosakata komponen (dipakai MENGISI skeleton, bukan menyusun halaman baru)
+### Pola halaman (v0.5)
+- `<x-nexus::index-page title :count :paginator :columns search searchName searchPlaceholder createUrl createLabel empty emptyFiltered filtered flash mobile>`
+  — slot default (baris `<tr>`), `filters`, `actions`, `emptyActions`, `toolbar`, `footer`.
+  Kolom: `'Label'` atau `['label','sort','align'=>start|center|end,'class','width','actions']`.
+- `<x-nexus::row-actions :view :edit :delete deleteConfirm label :icon align>` — slot = item tambahan
+  (`<a class="dropdown-item" role="menuitem">`).
+- `<x-nexus::form-page :action method :model title description size files :cancel submitLabel cancelLabel errorSummary flash>`
+  — slot default (field), `footer`, `footerStart`, `aside`. `size`: sm|md|lg|full.
+- `<x-nexus::detail-page title description :back backLabel flash>` — slot default, `actions`, `aside`, `tabs`.
+- `<x-nexus::description-list cols layout :items>` + `<x-nexus::description-item label :value full empty>`.
+- `<x-nexus::flash />`, `<x-nexus::pagination :paginator>` (otomatis di index-page).
 
-### Layout & struktur
-- `<x-nexus::page-header title description :breadcrumb>` — judul+breadcrumb+aksi, slot `actions`.
-- `<x-nexus::breadcrumb :items="[['label'=>..,'url'=>..]]">` — item terakhir otomatis jadi current.
-- `<x-nexus::card title noBody>` — container utama, slot `header`/`headerAction`, body via `card-body`.
-- `<x-nexus::card-table title sortable>` — card + tabel tanpa search/pagination, untuk ringkasan pendek.
+### Form (sadar `$errors`/`old()`/model — cukup `name`)
+- `<x-nexus::form.group label name required hint full span>` — WAJIB membungkus setiap field.
+- `<x-nexus::form.input name type placeholder>` · `<x-nexus::form.select name :options placeholder multiple>`
+  · `<x-nexus::form.textarea name rows>`
+- `<x-nexus::form.checkbox name label unchecked="0">` · `<x-nexus::form.radio-group name :options inline>`
+  · `<x-nexus::form.file name accept formats maxSize preview :current>`
+- `<x-nexus::form-grid cols="2|3">` · `<x-nexus::form.errors />` (otomatis di form-page)
+- `<x-nexus::modal-form>` hanya untuk form ≤3 field yang sengaja diminta sebagai modal.
 
-### Data / tabel
-- `<x-nexus::datatable title search sortable :paginator>` — composite: card + search + table + pagination.
-  Slot: `head` (isi `<tr>` thead), default (baris tbody), `actions` (tombol kanan bar kontrol).
-- `<x-nexus::table sortable>` — wrapper `<table class="data-table">` polos, dipakai internal oleh datatable/card-table.
-- `<x-nexus::table-actions :view :edit :delete deleteConfirm>` — grup tombol aksi baris.
-- `<x-nexus::dropdown label align>` — menu klik, slot `trigger` untuk custom trigger (butuh `data-dropdown-trigger`).
-- `<x-nexus::pagination :paginator>`, `<x-nexus::empty-state icon title desc>`.
-
-### Form
-- `<x-nexus::form.group label for hint error required full>` — WAJIB membungkus setiap field.
-- `<x-nexus::form.input type name id value placeholder>`
-- `<x-nexus::form.select name id :options :selected placeholder>` — options = `[value => label]`.
-- `<x-nexus::form.textarea name id rows value>`
-- `<x-nexus::modal-form id title action submit-label width method>` — untuk form via modal (bukan pola default,
-  lihat "Kapan pakai modal" di bawah).
-
-### Feedback & status
-- `<x-nexus::badge color>` — color: blue (default) | green | amber | red | purple.
-- `<x-nexus::alert type>`, `<x-nexus::confirm-dialog>` (pasang sekali di layout, trigger via `data-confirm="pesan"`
-  pada form/button), Toast via JS global `window.Toast.show(msg, type)`.
-
-### Ringkasan/dashboard
-- `<x-nexus::summary-card label value icon-color change change-direction>`, `<x-nexus::stat-card>`,
-  `<x-nexus::mini-stat>`, `<x-nexus::chart>`, `<x-nexus::card-chart>`.
+### Layout & lainnya
+- `<x-nexus::page-header>` — hanya untuk halaman non-pola (dashboard/laporan).
+- `<x-nexus::card title noBody>`, `<x-nexus::card-table>` (ringkasan dashboard, BUKAN index).
+- `<x-nexus::badge color>`, `<x-nexus::alert type>`, `<x-nexus::empty-state>`, `<x-nexus::tabs>`.
+- Ringkasan: `<x-nexus::stat-card>` di dalam `.stats-grid`.
 
 ### Ikon
-Semua ikon adalah komponen: `<x-nexus::icons.{nama} :size="14" />` — cek `resources/views/components/icons/`
-untuk daftar lengkap (edit, trash, eye, plus, search, download, chevron-*, dll). Jangan pakai SVG inline
-kalau ikonnya sudah ada di folder ini.
+Semua ikon adalah komponen: `<x-nexus::icons.{nama} :size="14" />` — cek `resources/views/components/icons/`.
+Jangan pakai SVG inline kalau ikonnya sudah ada.
 
 ## Aturan #3 — Kapan pakai modal vs halaman terpisah
 
-Default proyek ini: **form create/edit = halaman terpisah** (`page-form.blade.php`), BUKAN modal.
-`<x-nexus::modal-form>` tetap tersedia dan valid dipakai untuk kasus form super-singkat (1-3 field)
-yang secara sengaja user minta sebagai modal — tapi jangan jadi default tanpa diminta.
+Default: **form create/edit = halaman terpisah** (`form-page`), BUKAN modal.
+`modal-form` hanya untuk form super-singkat (1–3 field) yang sengaja diminta sebagai modal.
 
 ## Aturan #4 — Design tokens (jangan hardcode warna/spacing)
 
@@ -89,9 +93,12 @@ Semua styling lewat CSS variable di `resources/assets/css/tokens.css`, JANGAN ha
 - Radius: `var(--radius-sm|--radius|--radius-lg|--radius-xl|--radius-full)`.
 - Tema alternatif diatur via `[data-theme="indigo|emerald|violet|rose|..."]` di `themes.css` — hanya override
   `--primary`, jangan bikin sistem warna paralel.
-- Layout grid utility: `.d-flex`, `.d-grid`, `.grid-cols-{1-4}`, `.gap-x-*`, `.gap-y-*`, `.col-span-full`.
+- Utility (`.d-flex`, `.gap-*`, `.mt-*`) boleh untuk penataan kecil di dalam sel/slot; layout halaman
+  & form selalu lewat komponen (`form-grid`, `description-list`, `.stats-grid`, `.grid-2/3`).
+- Breakpoint & kontrak responsive: `GUIDELINES.md` §10 (600 / 900 / 1200).
 
 ## Referensi
 
-- `references/full-page-example.md` — contoh halaman index lengkap (produk) sebagai referensi pola nyata,
-  termasuk summary cards + datatable + modal edit (kasus modal yang valid).
+- Halaman demo hidup: `nexus::pages.demo-index`, `nexus::pages.demo-form`, `nexus::pages.demo-detail`.
+- `MIGRATION-0.5.md` — contoh sebelum/sesudah (lokasi/create) & pemetaan pola lama → baru.
+- `references/full-page-example.md` — contoh lama (datatable, pra-0.5); jangan ditiru untuk halaman baru.

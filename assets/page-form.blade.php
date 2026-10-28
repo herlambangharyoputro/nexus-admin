@@ -1,73 +1,56 @@
 {{--
-  SKELETON: Page Form (Create & Edit)
-  Satu file untuk create DAN edit — dibedakan lewat pengecekan isset($item).
-  Copy file ini per resource, isi bagian {{-- PLACEHOLDER --}}.
-  Layout SATU KOLOM — field berurutan ke bawah, JANGAN pakai .form-grid.
+  SKELETON: Page Form (Create & Edit) — v0.5, x-nexus::form-page
+  SATU file untuk create DAN edit → resources/views/{resource}/form.blade.php
+
+  Controller:
+    public function create() { return view('{resource}.form'); }
+    public function edit(Model $item) { return view('{resource}.form', compact('item')); }
+  (Bila memakai @include('{resource}._form') dari create/edit yang terpisah, isi
+   file _form dengan blok x-nexus::form-page di bawah — tetap satu sumber.)
+
+  Otomatis dari komponen (JANGAN ditulis manual):
+    @csrf, @method('PUT') saat edit, nilai old() → model, error per field,
+    is-invalid, ringkasan error di atas, tombol "Simpan" / "Simpan Perubahan" + "Batal".
+  Layout SATU KOLOM. x-nexus::form-grid HANYA untuk pasangan field pendek yang berkaitan
+  (GUIDELINES §9). DILARANG style inline untuk layout & <style> per halaman.
 --}}
 @extends('nexus::layouts.app')
 
-@section('title', isset($item) ? 'Edit {{-- PLACEHOLDER: nama resource --}}' : 'Tambah {{-- PLACEHOLDER: nama resource --}}')
+@section('title', isset($item) ? 'Edit {{-- PLACEHOLDER: Resource --}}' : 'Tambah {{-- PLACEHOLDER: Resource --}}')
+@section('page-title', '{{-- PLACEHOLDER: Resource --}}')
+@section('breadcrumb', isset($item) ? 'Edit' : 'Tambah')
 
 @section('content')
 
-{{-- 1. PAGE HEADER --}}
-<x-nexus::page-header
+<x-nexus::form-page
     :title="isset($item) ? 'Edit {{-- PLACEHOLDER --}}' : 'Tambah {{-- PLACEHOLDER --}}'"
-    :breadcrumb="[
-        ['label' => 'Dashboard', 'url' => url('/')],
-        ['label' => '{{-- PLACEHOLDER: label index, mis. Pengguna --}}', 'url' => route('{{-- PLACEHOLDER: name.index --}}')],
-        ['label' => isset($item) ? 'Edit' : 'Tambah'],
-    ]" />
+    :action="isset($item) ? route('{{-- PLACEHOLDER: name.update --}}', $item) : route('{{-- PLACEHOLDER: name.store --}}')"
+    :model="$item ?? null"
+    :cancel="route('{{-- PLACEHOLDER: name.index --}}')"
+    size="md">  {{-- sm (≤4 field pendek) | md (default) | lg (form-grid cols=3) ; tambah prop files bila ada form.file --}}
 
-{{-- 2. FORM CARD — satu kolom, field berurutan ke bawah --}}
-<x-nexus::card>
-    <form method="POST"
-          action="{{ isset($item) ? route('{{-- PLACEHOLDER: name.update --}}', $item) : route('{{-- PLACEHOLDER: name.store --}}') }}">
-        @csrf
-        @if(isset($item)) @method('PUT') @endif
+    {{-- PLACEHOLDER: ulangi per field. name di group & kontrol HARUS sama. --}}
+    <x-nexus::form.group label="{{-- PLACEHOLDER --}}" name="{{-- PLACEHOLDER --}}" required>
+        <x-nexus::form.input name="{{-- PLACEHOLDER --}}" placeholder="{{-- PLACEHOLDER --}}" />
+    </x-nexus::form.group>
 
-        {{-- PLACEHOLDER: ulangi form.group ini per field, urutan sesuai kebutuhan resource --}}
-        <x-nexus::form.group label="{{-- PLACEHOLDER: label field --}}" for="{{-- PLACEHOLDER: name --}}"
-            required :error="$errors->first('{{-- PLACEHOLDER: name --}}')">
-            <x-nexus::form.input
-                id="{{-- PLACEHOLDER: name --}}"
-                name="{{-- PLACEHOLDER: name --}}"
-                :value="old('{{-- PLACEHOLDER: name --}}', $item->{{-- PLACEHOLDER: name --}} ?? null)"
-                placeholder="{{-- PLACEHOLDER --}}" />
-        </x-nexus::form.group>
+    <x-nexus::form.group label="{{-- PLACEHOLDER --}}" name="{{-- PLACEHOLDER --}}">
+        <x-nexus::form.select name="{{-- PLACEHOLDER --}}" :options="{{-- PLACEHOLDER: [value => label] --}}[]" placeholder="Pilih {{-- PLACEHOLDER --}}" />
+    </x-nexus::form.group>
 
-        <div class="mt-4">
-            {{-- PLACEHOLDER: contoh field select — hapus kalau tidak perlu --}}
-            <x-nexus::form.group label="{{-- PLACEHOLDER --}}" for="{{-- PLACEHOLDER --}}"
-                :error="$errors->first('{{-- PLACEHOLDER --}}')">
-                <x-nexus::form.select
-                    id="{{-- PLACEHOLDER --}}" name="{{-- PLACEHOLDER --}}"
-                    :options="['{{-- PLACEHOLDER: value --}}' => '{{-- PLACEHOLDER: label --}}']"
-                    :selected="old('{{-- PLACEHOLDER --}}', $item->{{-- PLACEHOLDER --}} ?? null)"
-                    placeholder="Pilih {{-- PLACEHOLDER --}}" />
-            </x-nexus::form.group>
-        </div>
+    {{-- (OPSIONAL) pasangan field pendek — runtuh ke 1 kolom di HP --}}
+    {{--
+    <x-nexus::form-grid>
+        <x-nexus::form.group label="Mulai" name="mulai"><x-nexus::form.input name="mulai" type="date" /></x-nexus::form.group>
+        <x-nexus::form.group label="Selesai" name="selesai"><x-nexus::form.input name="selesai" type="date" /></x-nexus::form.group>
+    </x-nexus::form-grid>
+    --}}
 
-        <div class="mt-4">
-            {{-- PLACEHOLDER: contoh field textarea — hapus kalau tidak perlu --}}
-            <x-nexus::form.group label="{{-- PLACEHOLDER --}}" for="{{-- PLACEHOLDER --}}"
-                :error="$errors->first('{{-- PLACEHOLDER --}}')">
-                <x-nexus::form.textarea
-                    id="{{-- PLACEHOLDER --}}" name="{{-- PLACEHOLDER --}}" rows="4"
-                    :value="old('{{-- PLACEHOLDER --}}', $item->{{-- PLACEHOLDER --}} ?? null)" />
-            </x-nexus::form.group>
-        </div>
+    <x-nexus::form.group label="{{-- PLACEHOLDER --}}" name="{{-- PLACEHOLDER --}}">
+        <x-nexus::form.textarea name="{{-- PLACEHOLDER --}}" rows="4" />
+    </x-nexus::form.group>
 
-        {{-- 3. FORM ACTIONS — selalu di bawah, rata kanan. Cancel kembali ke index --}}
-        <div class="d-flex justify-end gap-2 mt-5">
-            <x-nexus::button variant="outline" href="{{ route('{{-- PLACEHOLDER: name.index --}}') }}">
-                Batal
-            </x-nexus::button>
-            <x-nexus::button type="submit">
-                {{ isset($item) ? 'Perbarui' : 'Simpan' }}
-            </x-nexus::button>
-        </div>
-    </form>
-</x-nexus::card>
+    {{-- Kontrol lain: form.checkbox, form.radio-group, form.file (lihat GUIDELINES §9) --}}
+</x-nexus::form-page>
 
 @endsection
