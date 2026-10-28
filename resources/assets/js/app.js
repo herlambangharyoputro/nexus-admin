@@ -79,12 +79,12 @@
     }
 
     function openMobile() {
-      $sidebar().removeClass('mobile-hidden');
+      $sidebar().removeClass('mobile-hidden').addClass('is-open');
       $overlay().addClass('show');
       $('body').addClass('overflow-hidden');
     }
     function closeMobile() {
-      $sidebar().addClass('mobile-hidden');
+      $sidebar().addClass('mobile-hidden').removeClass('is-open');
       $overlay().removeClass('show');
       $('body').removeClass('overflow-hidden');
     }
@@ -112,7 +112,7 @@
     // Satu sumber kebenaran: sinkronkan kelas dengan ukuran layar saat ini.
     function applyState() {
       if (isMobile()) {
-        $sidebar().removeClass('collapsed').addClass('mobile-hidden');
+        $sidebar().removeClass('collapsed is-open').addClass('mobile-hidden');
         $main().removeClass('expanded').addClass('no-margin');
         $overlay().removeClass('show');
         $('body').removeClass('overflow-hidden');

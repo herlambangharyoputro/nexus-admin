@@ -168,3 +168,21 @@
 
 /* ── Content Area ────────────────────────────────────────── */
 .content { padding: 28px; flex: 1; overflow-y: auto; }
+/* ── v0.5: Responsive shell (token --bp-md 900px, --bp-sm 600px) ── */
+.topbar-breadcrumb { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.topbar-right { flex-shrink: 0; }
+.sidebar-brand-img { max-height: 32px; max-width: 32px; object-fit: contain; border-radius: 6px; }
+
+@media (max-width: 899.98px) {
+  /* Off-canvas juga sebelum app.js berjalan (cegah konten tergeser/tertutup). */
+  .main, .main.expanded { margin-left: 0; }
+  .sidebar:not(.is-open) { transform: translateX(-100%); }
+  .sidebar.collapsed { width: var(--sidebar-w); }
+  .sidebar.is-open { box-shadow: var(--shadow-lg); }
+}
+
+@media (max-width: 599.98px) {
+  .topbar { padding: 0 12px; gap: 8px; }
+  .topbar-breadcrumb { font-size: 14px; }
+  .topbar-right { gap: 4px; }
+}
