@@ -538,9 +538,24 @@
       menu.style.top = top + 'px';
     }
 
-    function closeFloating(e) {
-      if (e && e.target && $(e.target).closest('.dropdown-menu.is-floating').length) return;
-      $('.dropdown-menu.is-floating.show').each(function () { close(this); });
+    // Saat scroll/resize: ikuti posisi tombol; tutup bila tombol keluar layar.
+    let rafPending = false;
+    function syncFloating(e) {
+      if (e && e.target && e.target.nodeType === 1 && $(e.target).closest('.dropdown-menu.is-floating').length) return;
+      if (rafPending) return;
+      rafPending = true;
+      window.requestAnimationFrame(function () {
+        rafPending = false;
+        $('.dropdown-menu.is-floating.show').each(function () {
+          const $dd = $(this).closest('.dropdown');
+          const trigger = triggerOf(this)[0];
+          if (!trigger) { close(this); return; }
+          const r = trigger.getBoundingClientRect();
+          if (r.bottom < 0 || r.top > window.innerHeight || r.right < 0 || r.left > window.innerWidth) { close(this); return; }
+          this.style.maxHeight = '';
+          place(trigger, this, $dd.attr('data-align') === 'left');
+        });
+      });
     }
 
     function init() {
@@ -569,11 +584,10 @@
           closeAll();
         });
 
-      // Menu mengambang tidak ikut bergeser saat scroll/resize → tutup.
       if (!window.__nexusDdFloatBound) {
         window.__nexusDdFloatBound = true;
-        window.addEventListener('scroll', closeFloating, true);
-        window.addEventListener('resize', function () { closeFloating(); });
+        window.addEventListener('scroll', syncFloating, true);
+        window.addEventListener('resize', function () { syncFloating(); });
       }
     }
     return { init: init, closeAll: closeAll };

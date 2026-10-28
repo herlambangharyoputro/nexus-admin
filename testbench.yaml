@@ -1,0 +1,10 @@
+# Workbench dev-only (orchestra/testbench): menyajikan halaman demo untuk
+# verifikasi visual & screenshot Playwright. Jalankan:
+#   vendor/bin/testbench serve --port=8077
+providers:
+  - Nexus\Admin\NexusServiceProvider
+
+workbench:
+  start: /nexus-demo/index
+  discovers:
+    web: true

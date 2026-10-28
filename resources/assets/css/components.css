@@ -957,6 +957,16 @@ h1.card-title { font-size: 16px; line-height: 1.35; margin: 0; overflow-wrap: an
 .index-empty .btn { text-decoration: none; }
 .index-page .pagination { border-top: 1px solid var(--border); }
 
+.data-table .badge, .data-table code { white-space: nowrap; }
+/* Kolom aksi menempel di kanan saat tabel di-scroll (tablet / mode scroll). */
+.index-table .data-table th[data-col-role="actions"],
+.index-table .data-table td[data-role="actions"] {
+  position: sticky; right: 0; z-index: 1; background: var(--card);
+  box-shadow: -10px 0 10px -10px rgba(0, 0, 0, .18);
+}
+.index-table .data-table th[data-col-role="actions"] { background: var(--canvas); }
+.data-table td.cell-end { white-space: nowrap; }
+.index-filter .btn { align-self: stretch; }
 .data-table th.cell-center, .data-table td.cell-center { text-align: center; }
 .data-table th.cell-end,    .data-table td.cell-end    { text-align: right; }
 .th-sortable { white-space: nowrap; }
@@ -1089,8 +1099,11 @@ h1.card-title { font-size: 16px; line-height: 1.35; margin: 0; overflow-wrap: an
 
   /* Header kartu halaman: aksi turun ke bawah judul, lebar penuh */
   .page-card-actions { width: 100%; margin-left: 0; }
-  .page-card-actions > .btn, .page-card-actions > .dropdown { flex: 1 1 auto; }
-  .page-card-actions > .dropdown > .btn { width: 100%; }
+  .page-card-actions > .btn,
+  .page-card-actions > .dropdown:not(.row-actions) { flex: 1 1 auto; }
+  .page-card-actions > .dropdown:not(.row-actions) > .btn { width: 100%; }
+  .page-card-actions > .row-actions:has(> .btn:not(.btn-icon)) { flex: 1 1 auto; }
+  .page-card-actions > .row-actions > .btn:not(.btn-icon) { width: 100%; }
 
   /* Toolbar index: kontrol selebar layar, tombol berbagi satu baris */
   .index-flash { padding: 12px 14px 0; }
@@ -1122,6 +1135,7 @@ h1.card-title { font-size: 16px; line-height: 1.35; margin: 0; overflow-wrap: an
   .index-table-cards .data-table td {
     display: grid; grid-template-columns: minmax(84px, 36%) minmax(0, 1fr); gap: 8px;
     padding: 5px 0; border: 0; white-space: normal; text-align: left; overflow-wrap: anywhere;
+    justify-items: start; align-items: baseline;
   }
   .index-table-cards .data-table td::before {
     content: attr(data-label); color: var(--muted);
@@ -1138,6 +1152,7 @@ h1.card-title { font-size: 16px; line-height: 1.35; margin: 0; overflow-wrap: an
   .index-table-cards .data-table td[data-role="primary"]::before { content: none; }
   .index-table-cards .data-table td[data-role="actions"] {
     display: block; position: absolute; top: 6px; right: 6px; width: auto; padding: 0;
+    background: none; box-shadow: none;
   }
   .index-table-cards .data-table td[data-role="actions"]::before { content: none; }
   .index-table-scroll .data-table th, .index-table-scroll .data-table td { white-space: nowrap; }
