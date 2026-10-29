@@ -5,7 +5,7 @@ Semua perubahan penting pada package ini didokumentasikan di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/),
 dan project ini menganut [Semantic Versioning](https://semver.org/).
 
-## [0.5.0] - Belum dirilis
+## [0.5.0] - 2026-10-29
 
 Satu sumber pola halaman **index · form · detail**, responsive-first. Additive &
 backward-compatible; yang tergantikan di-deprecate, tidak dihapus. Panduan upgrade:
@@ -202,7 +202,7 @@ Rilis awal Nexus Admin sebagai Composer package (presentation layer only).
 - Override mechanism: `vendor:publish --tag=nexus-views` →
   `resources/views/vendor/nexus` untuk kustomisasi view oleh consumer.
 
-[0.5.0]: https://github.com/herlambangharyoputro/nexus-admin/compare/v0.4.0...HEAD
+[0.5.0]: https://github.com/herlambangharyoputro/nexus-admin/releases/tag/v0.5.0
 [0.4.0]: https://github.com/herlambangharyoputro/nexus-admin/releases/tag/v0.4.0
 [0.3.0]: https://github.com/herlambangharyoputro/nexus-admin/releases/tag/v0.3.0
 [0.2.0]: https://github.com/herlambangharyoputro/nexus-admin/releases/tag/v0.2.0
