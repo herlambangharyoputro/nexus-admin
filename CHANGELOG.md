@@ -5,6 +5,73 @@ Semua perubahan penting pada package ini didokumentasikan di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/),
 dan project ini menganut [Semantic Versioning](https://semver.org/).
 
+## [0.5.0] - 2026-10-29
+
+Satu sumber pola halaman **index · form · detail**, responsive-first. Additive &
+backward-compatible; yang tergantikan di-deprecate, tidak dihapus. Panduan upgrade:
+`MIGRATION-0.5.md`. Desain: `docs/rfc-0.5.md`.
+
+### Added
+- **Pola halaman**: `index-page` (server-side: cari/filter/reset, sortir `?sort=&dir=`
+  dengan `aria-sort`, empty state "belum ada data" vs "tidak cocok", flash, pagination
+  dengan query string, tabel → kartu di HP), `form-page` (size `sm|md|lg|full`, `@csrf`,
+  method spoofing otomatis dari `:model`/`method`, ringkasan error, footer Simpan/Batal),
+  `detail-page` (+ slot `actions`, `aside`, `tabs`).
+- **Komponen**: `row-actions` (menu ⋮ mengambang), `flash`, `form-grid` (cols 2|3,
+  runtuh di HP), `form.checkbox`, `form.radio-group`, `form.file` (hint format/ukuran,
+  pratinjau gambar), `form.errors`, `description-list`, `description-item`.
+- **Pagination**: view `nexus::pagination.links` untuk `Paginator::defaultView()`;
+  komponen `pagination` mendukung `simplePaginate`, `aria-current`, prop `onEachSide`.
+- **Titik ekstensi layout** (tanpa override): `resources/views/nexus/{head,brand,
+  sidebar-nav,topbar-actions,user-menu}.blade.php`; `@stack('head')` di layout.
+- **Helper** `Nexus\Admin\Support\Field` (id/kunci dot-notation/error/nilai awal field).
+- **Token** `--bp-sm/--bp-md/--bp-lg` (600/900/1200), `--touch` (40px),
+  `--page-sm/md/lg/aside`; utilitas `.sr-only`, `.btn-soft`, `.dropdown-header`.
+- **JS**: `NexusBreakpoint`, dropdown `data-dropdown="float"`, `StackTable`,
+  `ErrorSummary`, `FilePreview`.
+- **Demo**: `nexus::pages.demo-index`, `demo-form`, `demo-detail` (keadaan normal,
+  error, kosong); workbench `testbench serve` untuk pengembangan paket.
+- **Test**: orchestra/testbench (render komponen, backward-compat) + Playwright
+  `tests/browser/responsive.cjs` (360/768/1280); screenshot di `docs/screenshots/0.5/`.
+- **Dokumen**: GUIDELINES §9 (anatomi halaman, aturan form-grid, label tombol baku),
+  §10 (kontrak responsive), §6 (titik ekstensi); `MIGRATION-0.5.md`.
+
+### Changed
+- `form.group`: error otomatis dari prop `name` (prop `error` lama tetap menang;
+  `:error="false"` mematikan), `for` diturunkan dari `name`, penanda wajib tunggal
+  (+ teks pembaca layar), hint/error kini `<p id="{id}-hint|error">`.
+- `form.input`/`form.select`/`form.textarea`: nilai awal otomatis `old()` → `value` →
+  model `form-page`; kelas `is-invalid`, `aria-invalid`, `aria-describedby`,
+  `aria-required` otomatis; `id` diturunkan dari `name`. Prop lama tetap berlaku.
+- `form.select`: opsi `placeholder` bernilai `""` dan **dapat dipilih** (dulu `disabled`),
+  agar bisa menjadi filter "Semua …"; mendukung `multiple`.
+- Sidebar off-canvas di bawah **900px** (dulu 768px) dan tersembunyi sebelum JS
+  berjalan (kelas `.is-open`); `.grid-2` runtuh di bawah 600px (dulu 768px), `.grid-3`
+  → 2 kolom di bawah 900px. Semua media query memakai 599.98/899.98/1199.98px.
+- < 900px: target sentuh ≥ 40px (`.btn`, `.pg-btn`, input, `.dropdown-item`, dst.).
+  < 600px: modal penuh layar, dropdown topbar/notif-panel/toast selebar layar,
+  pagination & header kartu menyesuaikan.
+- Topbar membaca `auth()->user()`; logout POST bila route `logout` ada; label menu
+  user "Profil/Pengaturan/Keluar". Nav & brand contoh dipindah ke `partials/*-default`.
+- `.form-hint`/`.form-error` 11px → 12px. `search-box` mendapat `aria-label`.
+- Skeleton `assets/page-index|form|show` memakai komponen pola baru; label edit
+  "Perbarui" → **"Simpan Perubahan"**.
+
+### Deprecated
+- `datatable` → gunakan `index-page`.
+- `table-actions` → gunakan `row-actions`.
+- Aturan "≤4 kolom → table-actions, >4 → dropdown" (SKILL) → selalu `row-actions`.
+
+### Fixed
+- Hook `data-table-search` milik `datatable` tidak pernah diimplementasi di `app.js`;
+  kini menyaring baris di browser seperti yang didokumentasikan.
+- Tabel lebar, `.page-header`, `.table-controls`, `.pagination`, `.card-header` tidak
+  lagi melebarkan halaman di 360px.
+- Dropdown di dalam tabel yang di-scroll tidak lagi terpotong (`row-actions`).
+- Doc-comment ikon `download` memuat tag komponen literal — dinetralkan.
+
+---
+
 ## [0.4.0] - 2026-06-28
 
 Enhancement halaman auth (login & register) — additive & backward-compatible.
@@ -135,6 +202,8 @@ Rilis awal Nexus Admin sebagai Composer package (presentation layer only).
 - Override mechanism: `vendor:publish --tag=nexus-views` →
   `resources/views/vendor/nexus` untuk kustomisasi view oleh consumer.
 
+[0.5.0]: https://github.com/herlambangharyoputro/nexus-admin/releases/tag/v0.5.0
+[0.4.0]: https://github.com/herlambangharyoputro/nexus-admin/releases/tag/v0.4.0
 [0.3.0]: https://github.com/herlambangharyoputro/nexus-admin/releases/tag/v0.3.0
 [0.2.0]: https://github.com/herlambangharyoputro/nexus-admin/releases/tag/v0.2.0
 [0.1.0]: https://github.com/herlambangharyoputro/nexus-admin/releases/tag/v0.1.0

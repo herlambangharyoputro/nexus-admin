@@ -18,6 +18,11 @@
     {{-- App CSS (master, imports tokens/base/utilities/layout/components) --}}
     <link rel="stylesheet" href="{{ asset('nexus/assets/css/app.css') }}">
 
+    {{-- Titik ekstensi <head> (v0.5): favicon, meta, CSS aplikasi.
+         Buat resources/views/nexus/head.blade.php di aplikasi — tanpa override layout. --}}
+    @includeIf('nexus.head')
+    @stack('head')
+
     {{-- Per-page extra styles --}}
     @stack('styles')
 </head>

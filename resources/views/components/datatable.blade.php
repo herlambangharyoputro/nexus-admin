@@ -1,4 +1,7 @@
 {{--
+  @deprecated 0.5.0 — gunakan x-nexus::index-page (pola index server-side (cari/filter/sort/empty state/flash/kartu di HP)).
+  Tetap berfungsi; dijadwalkan dihapus paling cepat di 1.0. Lihat MIGRATION-0.5.md.
+
   Datatable — komposit: card + kontrol (search + actions) + table + pagination.
   Pola "list/index page" standar Nexus Admin.
 

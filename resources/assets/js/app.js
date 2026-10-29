@@ -15,6 +15,13 @@
     10. Wizard          → auto-init via [data-wizard]
     11. Lightbox        → auto-init via [data-lightbox] + #nexusLightbox
     12. Carousel        → auto-init via [data-carousel]
+    v0.5:
+     - Breakpoint      → window.NexusBreakpoint.{sm,md,lg}() (token --bp-*)
+     - Dropdown float  → [data-dropdown="float"] (row-actions)
+     - Table search    → [data-table-search] (datatable, deprecated)
+     - Stack table     → [data-stack-table] (index-page, kartu di HP); StackTable.init(root)
+     - Error summary   → [data-error-summary] (form.errors)
+     - File preview    → [data-file-preview] (form.file preview)
      ============================================================ */
 
 (function ($) {
@@ -30,10 +37,26 @@
   });
 
   /* ──────────────────────────────────────────────────────────
+     Breakpoint — baca token --bp-sm/--bp-md/--bp-lg dari tokens.css
+     (satu sumber kebenaran; fallback 600/900/1200).
+     ────────────────────────────────────────────────────────── */
+  const Breakpoint = (function () {
+    const fallback = { sm: 600, md: 900, lg: 1200 };
+    function read(name) {
+      const v = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--bp-' + name), 10);
+      return isNaN(v) ? fallback[name] : v;
+    }
+    return {
+      sm: function () { return read('sm'); },
+      md: function () { return read('md'); },
+      lg: function () { return read('lg'); }
+    };
+  })();
+
+  /* ──────────────────────────────────────────────────────────
      1. Sidebar (collapse desktop + slide mobile)
      ────────────────────────────────────────────────────────── */
   const Sidebar = (function () {
-    const MOBILE_BREAKPOINT = 768;
     const STORAGE_KEY = 'nexus.sidebar.collapsed';
     let bound = false;
 
@@ -43,8 +66,9 @@
     function $main()    { return $('.main'); }
     function $overlay() { return $('.sidebar-overlay'); }
 
+    // Breakpoint off-canvas = token --bp-md (tokens.css, default 900px).
     function isMobile() {
-      return window.innerWidth < MOBILE_BREAKPOINT;
+      return window.innerWidth < Breakpoint.md();
     }
 
     function persist(collapsed) {
@@ -55,12 +79,12 @@
     }
 
     function openMobile() {
-      $sidebar().removeClass('mobile-hidden');
+      $sidebar().removeClass('mobile-hidden').addClass('is-open');
       $overlay().addClass('show');
       $('body').addClass('overflow-hidden');
     }
     function closeMobile() {
-      $sidebar().addClass('mobile-hidden');
+      $sidebar().addClass('mobile-hidden').removeClass('is-open');
       $overlay().removeClass('show');
       $('body').removeClass('overflow-hidden');
     }
@@ -88,7 +112,7 @@
     // Satu sumber kebenaran: sinkronkan kelas dengan ukuran layar saat ini.
     function applyState() {
       if (isMobile()) {
-        $sidebar().removeClass('collapsed').addClass('mobile-hidden');
+        $sidebar().removeClass('collapsed is-open').addClass('mobile-hidden');
         $main().removeClass('expanded').addClass('no-margin');
         $overlay().removeClass('show');
         $('body').removeClass('overflow-hidden');
@@ -309,6 +333,94 @@
   })();
 
   /* ──────────────────────────────────────────────────────────
+     5b. Table search (client-side) — hook [data-table-search] milik
+     datatable (deprecated). Menyaring baris tbody pada kartu yang sama.
+     ────────────────────────────────────────────────────────── */
+  const TableSearch = (function () {
+    function init() {
+      $(document).off('input.nexusTs').on('input.nexusTs', '[data-table-search]', function () {
+        const q = $(this).val().toLowerCase().trim();
+        const $scope = $(this).closest('.card');
+        $scope.find('table tbody tr').each(function () {
+          $(this).toggle(!q || $(this).text().toLowerCase().indexOf(q) !== -1);
+        });
+      });
+    }
+    return { init: init };
+  })();
+
+  /* ──────────────────────────────────────────────────────────
+     5c. Stack table — tabel index-page di bawah --bp-sm tampil sebagai kartu.
+     Salin teks <th> ke td[data-label] (+ data-role primary/actions) supaya
+     consumer tidak perlu menulis data-label. data-label manual tidak ditimpa.
+     Markup: <table data-stack-table> <th data-col-role="primary|actions">
+     ────────────────────────────────────────────────────────── */
+  const StackTable = (function () {
+    function label(table) {
+      const heads = Array.prototype.map.call(table.querySelectorAll('thead th'), function (th) {
+        return { text: th.textContent.replace(/[▲▼⇅]/g, '').trim(), role: th.getAttribute('data-col-role') };
+      });
+      if (!heads.length) return;
+      table.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          const h = heads[i];
+          if (!h || td.hasAttribute('colspan')) return;
+          if (!td.hasAttribute('data-label')) td.setAttribute('data-label', h.text);
+          if (h.role && !td.hasAttribute('data-role')) td.setAttribute('data-role', h.role);
+        });
+      });
+    }
+    function init(root) {
+      (root || document).querySelectorAll('table[data-stack-table]').forEach(label);
+    }
+    return { init: init, label: label };
+  })();
+
+  /* ──────────────────────────────────────────────────────────
+     5d. Error summary — fokuskan ringkasan error form saat halaman dimuat
+     (x-nexus::form.errors) agar pembaca layar langsung membacanya.
+     ────────────────────────────────────────────────────────── */
+  const ErrorSummary = (function () {
+    function init() {
+      const box = document.querySelector('[data-error-summary]');
+      if (box) box.focus({ preventScroll: false });
+      $(document).off('click.nexusErr').on('click.nexusErr', '[data-error-summary] a[href^="#"]', function (e) {
+        const el = document.getElementById(this.getAttribute('href').slice(1));
+        if (!el) return;
+        e.preventDefault();
+        el.scrollIntoView({ block: 'center' });
+        el.focus({ preventScroll: true });
+      });
+    }
+    return { init: init };
+  })();
+
+  /* ──────────────────────────────────────────────────────────
+     5e. File preview — pratinjau gambar untuk x-nexus::form.file preview.
+     Markup: [data-file-preview] > [data-file-preview-box] > img[data-file-preview-img] + input[type=file]
+     ────────────────────────────────────────────────────────── */
+  const FilePreview = (function () {
+    function init() {
+      $(document).off('change.nexusFp').on('change.nexusFp', '[data-file-preview] input[type="file"]', function () {
+        const wrap = this.closest('[data-file-preview]');
+        const box = wrap.querySelector('[data-file-preview-box]');
+        const img = wrap.querySelector('[data-file-preview-img]');
+        const file = this.files && this.files[0];
+        if (!box || !img) return;
+        if (!file || file.type.indexOf('image/') !== 0) {
+          if (img.hasAttribute('data-current')) img.src = img.getAttribute('data-current');
+          box.hidden = !img.getAttribute('src');
+          return;
+        }
+        if (!img.hasAttribute('data-current')) img.setAttribute('data-current', img.getAttribute('src') || '');
+        img.src = URL.createObjectURL(file);
+        box.hidden = false;
+      });
+    }
+    return { init: init };
+  })();
+
+  /* ──────────────────────────────────────────────────────────
      6. Topbar action handlers
      ────────────────────────────────────────────────────────── */
   const Topbar = (function () {
@@ -391,25 +503,92 @@
              </div>
      ────────────────────────────────────────────────────────── */
   const Dropdown = (function () {
+    function triggerOf(menu) {
+      return $(menu).closest('.dropdown').find('[data-dropdown-trigger]').first();
+    }
+    function close(menu) {
+      $(menu).removeClass('show is-floating').css({ left: '', top: '', maxHeight: '' });
+      triggerOf(menu).attr('aria-expanded', 'false');
+    }
     function closeAll(except) {
       $('.dropdown-menu.show').each(function () {
-        if (this !== except) $(this).removeClass('show');
+        if (this !== except) close(this);
       });
     }
+
+    // Mode mengambang (data-dropdown="float", dipakai row-actions): position:fixed
+    // agar tidak terpotong kontainer overflow (tabel), dijepit ke viewport,
+    // dan membuka ke atas bila ruang di bawah tidak cukup.
+    function place(trigger, menu, alignLeft) {
+      const pad = 8, gap = 6;
+      menu.classList.add('is-floating');
+      const r = trigger.getBoundingClientRect();
+      const w = menu.offsetWidth, h = menu.offsetHeight;
+      const vw = window.innerWidth, vh = window.innerHeight;
+
+      let left = alignLeft ? r.left : r.right - w;
+      left = Math.max(pad, Math.min(left, vw - w - pad));
+
+      let top = r.bottom + gap;
+      if (top + h > vh - pad) {
+        if (r.top - gap - h >= pad) top = r.top - gap - h;      // balik ke atas
+        else menu.style.maxHeight = Math.max(120, vh - top - pad) + 'px';
+      }
+      menu.style.left = left + 'px';
+      menu.style.top = top + 'px';
+    }
+
+    // Saat scroll/resize: ikuti posisi tombol; tutup bila tombol keluar layar.
+    let rafPending = false;
+    function syncFloating(e) {
+      if (e && e.target && e.target.nodeType === 1 && $(e.target).closest('.dropdown-menu.is-floating').length) return;
+      if (rafPending) return;
+      rafPending = true;
+      window.requestAnimationFrame(function () {
+        rafPending = false;
+        $('.dropdown-menu.is-floating.show').each(function () {
+          const $dd = $(this).closest('.dropdown');
+          const trigger = triggerOf(this)[0];
+          if (!trigger) { close(this); return; }
+          const r = trigger.getBoundingClientRect();
+          if (r.bottom < 0 || r.top > window.innerHeight || r.right < 0 || r.left > window.innerWidth) { close(this); return; }
+          this.style.maxHeight = '';
+          place(trigger, this, $dd.attr('data-align') === 'left');
+        });
+      });
+    }
+
     function init() {
       $(document)
         .off('.nexusDd')
         .on('click.nexusDd', '[data-dropdown-trigger]', function (e) {
           e.preventDefault();
           e.stopPropagation();
-          const $menu = $(this).closest('.dropdown').find('.dropdown-menu').first();
+          const $dd = $(this).closest('.dropdown');
+          const $menu = $dd.find('.dropdown-menu').first();
           const isOpen = $menu.hasClass('show');
           closeAll($menu[0]);
-          $menu.toggleClass('show', !isOpen);
+          if (isOpen) { close($menu[0]); return; }
+          $menu.addClass('show');
+          $(this).attr('aria-expanded', 'true');
+          if ($dd.attr('data-dropdown') === 'float') {
+            place(this, $menu[0], $dd.attr('data-align') === 'left');
+          }
         })
         .on('click.nexusDd', '.dropdown-menu', function (e) { e.stopPropagation(); })
         .on('click.nexusDd', function () { closeAll(); })
-        .on('keydown.nexusDd', function (e) { if (e.key === 'Escape') closeAll(); });
+        .on('keydown.nexusDd', function (e) {
+          if (e.key !== 'Escape') return;
+          const $open = $('.dropdown-menu.show');
+          if ($open.length) { triggerOf($open[0]).trigger('focus'); }
+          closeAll();
+        });
+
+      if (!window.__nexusDdFloatBound) {
+        window.__nexusDdFloatBound = true;
+        window.addEventListener('scroll', syncFloating, true);
+        window.addEventListener('resize', function () { syncFloating(); });
+      }
     }
     return { init: init, closeAll: closeAll };
   })();
@@ -692,6 +871,10 @@
     Modal.init();
     Notif.init();
     TableSort.init();
+    TableSearch.init();
+    StackTable.init();
+    ErrorSummary.init();
+    FilePreview.init();
     Topbar.init();
     UserMenu.init();
     Dropdown.init();
@@ -718,5 +901,7 @@
   window.Lightbox  = Lightbox;
   window.Carousel  = Carousel;
   window.NexusIntegrations = Integrations;
+  window.NexusBreakpoint   = Breakpoint;
+  window.StackTable        = StackTable;
 
 })(jQuery);

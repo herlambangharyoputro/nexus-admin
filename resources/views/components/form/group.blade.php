@@ -1,46 +1,66 @@
 {{--
-  Form Group — wrapper label + kontrol + hint/error.
+  Form Group — wrapper label + kontrol + hint/error. WAJIB membungkus setiap field.
 
-  Usage:
-    x-nexus::form.group label="Nama" for="name" required>
-        x-nexus::form.input id="name" name="name" />
+  Usage (v0.5 — error otomatis dari $errors berdasarkan name):
+    x-nexus::form.group label="Nama" name="name" required hint="Sesuai KTP">
+        x-nexus::form.input name="name" />
     /x-nexus::form.group>
 
-    x-nexus::form.group label="Email" for="email" error="Email wajib diisi">
-        x-nexus::form.input id="email" type="email" />
+  Usage lama (tetap jalan):
+    x-nexus::form.group label="Email" for="email" :error="$errors->first('email')">
+        x-nexus::form.input id="email" name="email" type="email" />
     /x-nexus::form.group>
 
   Props:
     label    : string → teks label
-    for      : string → id kontrol (atribut for)
-    hint     : string → teks bantuan (tampil jika tidak ada error)
-    error    : string → pesan error (mengalahkan hint)
-    required : true   → tampilkan penanda *
-    full     : true   → .form-group.full (span penuh di .form-grid)
+    name     : nama field → error otomatis ($errors->first(name)), for/id otomatis
+               ('items[0][qty]' → kunci 'items.0.qty', id 'items-0-qty')
+    for      : id kontrol (default: diturunkan dari name)
+    hint     : teks bantuan (tampil jika tidak ada error) → id "{id}-hint"
+    error    : pesan error manual; MENANG atas error otomatis.
+               :error="false" → matikan error otomatis.
+    required : true → penanda wajib tunggal (* + "(wajib)" untuk pembaca layar);
+               kontrol di dalamnya otomatis mendapat aria-required
+    full     : true → span penuh di form-grid
+    span     : 2 | 3 → membentang N kolom di form-grid (runtuh di HP)
+
+  Kontrol form.* di dalam group membaca label/hint/error group ini (via @aware)
+  untuk aria-invalid, aria-describedby, aria-required dan kelas is-invalid.
 --}}
 @props([
     'label'    => null,
+    'name'     => null,
     'for'      => null,
     'hint'     => null,
     'error'    => null,
     'required' => false,
     'full'     => false,
+    'span'     => null,
 ])
 
-@php $classes = 'form-group' . ($full ? ' full' : ''); @endphp
+@php
+    $field   = \Nexus\Admin\Support\Field::class;
+    $id      = $for ?: $field::id($name);
+    $message = $error === false ? null : ($error ?: $field::error($errors ?? null, $name));
 
-<div {{ $attributes->merge(['class' => $classes]) }}>
+    $classes = ['form-group'];
+    if ($full)    $classes[] = 'full';
+    if ($span)    $classes[] = 'form-span-' . (int) $span;
+    if ($message) $classes[] = 'has-error';
+@endphp
+
+<div {{ $attributes->merge(['class' => implode(' ', $classes)]) }}>
     @if ($label)
-        <label class="form-label" @if($for) for="{{ $for }}" @endif>
-            {{ $label }}@if($required)<span class="text-red"> *</span>@endif
+        <label class="form-label" @if($id) for="{{ $id }}" id="{{ $id }}-label" @endif>
+            {{ $label }}@if($required)<span class="form-required" aria-hidden="true">*</span><span class="sr-only"> (wajib)</span>@endif
         </label>
     @endif
 
     {{ $slot }}
 
-    @if ($error)
-        <span class="form-error">{{ $error }}</span>
+    @if ($message)
+        <p class="form-error" @if($id) id="{{ $id }}-error" @endif>{{ $message }}</p>
     @elseif ($hint)
-        <span class="form-hint">{{ $hint }}</span>
+        <p class="form-hint" @if($id) id="{{ $id }}-hint" @endif>{{ $hint }}</p>
     @endif
 </div>

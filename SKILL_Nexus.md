@@ -2,7 +2,7 @@
 name: nexus-admin
 description: >
   Bangun UI admin Laravel dengan tema Nexus Admin memakai komponen Blade
-  <x-nexus::*>. Gunakan saat membuat halaman dashboard, list/index (datatable),
+  <x-nexus::*>. Gunakan saat membuat halaman dashboard, list/index (index-page),
   form, detail, atau auth di proyek yang memakai package nexus-admin. Berisi
   quick-reference semua komponen, pola halaman (lihat PATTERNS_Nexus.md), dan
   aturan markup/asset yang wajib dipatuhi agar JS (sidebar, modal, dll) bekerja.
@@ -43,12 +43,18 @@ Halaman shell admin: `@extends('nexus::layouts.app')`. Halaman terpusat
    komponen shell auto-init. Lihat `CHARTS.md`.
 6. Komponen baru harus ikut pola di `GUIDELINES.md` (`@props` + builder `$classes`
    + `$attributes->merge` + header dokumentasi).
+7. **Halaman baru WAJIB memakai `index-page` / `form-page` / `detail-page`**;
+   **dilarang `style` inline untuk layout** dan `<style>` per halaman (GUIDELINES §9).
+8. **Jangan override view paket.** Logo/nav/menu user/favicon → file aplikasi di
+   `resources/views/nexus/*.blade.php` (GUIDELINES §6).
+9. Responsive mengikuti kontrak 600/900/1200 (GUIDELINES §10) — jangan menambal
+   breakpoint sendiri.
 
 ## Pola halaman → lihat `PATTERNS_Nexus.md`
 
-- **List/Index**: `page-header` → `summary-card` (baris) → `datatable` (client-side, tanpa `:paginator`) + `table-actions`. Tambah data = halaman terpisah, bukan modal.
-- **Detail**: `breadcrumb` + `page-header` → `card` info + `activity`
-- **Form**: `page-header` → `card` + `form.group`/`form.*`, satu kolom, satu file untuk create & edit (`isset($item)`). `form-wizard` untuk multi-langkah.
+- **List/Index**: `index-page` (server-side: cari/filter/sortir/paginate, empty state, flash, kartu di HP) + `row-actions`. Tambah data = halaman terpisah.
+- **Form**: `form-page` + `form.group`/`form.*` (error, `old()`, model otomatis), satu kolom, satu file create & edit. `form-grid` hanya untuk pasangan field pendek. `form-wizard` untuk multi-langkah.
+- **Detail**: `detail-page` + `description-list` (+ slot `aside`, `tabs`).
 - **Dashboard**: `stat-card` (baris) → `card-chart` + `card-table` → `activity`
 - **Auth**: layout `nexus::layouts.auth` + template `nexus::pages.auth.*`
 
@@ -69,20 +75,27 @@ Halaman shell admin: `@extends('nexus::layouts.app')`. Halaman terpusat
 **Data & tabel**
 | Komponen | Pakai untuk |
 |---|---|
-| `<x-nexus::datatable title :paginator sortable>` | Tabel lengkap (search+sort+paginate) |
-| `<x-nexus::card-table title sortable>` | Kartu + tabel polos |
+| `<x-nexus::index-page title :paginator :columns :create-url>` | **Halaman index** (kanonik v0.5) |
+| `<x-nexus::row-actions :view :edit :delete>` | **Aksi baris** (menu ⋮, kanonik v0.5) |
+| `<x-nexus::detail-page title :back>` + `<x-nexus::description-list>` | **Halaman detail** |
+| `<x-nexus::card-table title sortable>` | Kartu + tabel polos (dashboard) |
 | `<x-nexus::table sortable>` + `<x-slot:head>` | Tabel mentah |
-| `<x-nexus::table-actions :view :edit :delete>` | Tombol aksi baris |
-| `<x-nexus::pagination :paginator>` | Pagination |
+| `<x-nexus::pagination :paginator>` · view `nexus::pagination.links` | Pagination |
+| `<x-nexus::flash />` | Pesan sesi (otomatis di komponen halaman) |
+| ~~`datatable`~~, ~~`table-actions`~~ | Deprecated 0.5 → `index-page`, `row-actions` |
 | `<x-nexus::stat-card>` `<x-nexus::summary-card>` `<x-nexus::mini-stat>` | KPI |
 | `<x-nexus::empty-state title desc icon>` `<x-nexus::skeleton variant>` | Kosong/loading |
 
 **Form**
 | Komponen | Pakai untuk |
 |---|---|
-| `<x-nexus::form.group label for error hint required full>` | Bungkus field |
-| `<x-nexus::form.input type name value>` `<x-nexus::form.textarea>` | Input |
-| `<x-nexus::form.select :options :selected>` | Dropdown |
+| `<x-nexus::form-page :action :model :cancel size files>` | **Halaman form** create & edit (kanonik v0.5) |
+| `<x-nexus::form.group label name required hint full span>` | Bungkus field (error otomatis dari `name`) |
+| `<x-nexus::form.input type name>` `<x-nexus::form.textarea name>` | Input (`old()` → model otomatis) |
+| `<x-nexus::form.select name :options>` | Dropdown (mendukung `multiple`) |
+| `<x-nexus::form.checkbox name label>` `<x-nexus::form.radio-group name :options inline>` | Pilihan |
+| `<x-nexus::form.file name formats max-size preview>` | Unggah berkas + pratinjau |
+| `<x-nexus::form-grid cols>` `<x-nexus::form.errors />` | Grid 2/3 kolom (runtuh di HP), ringkasan error |
 | `<x-nexus::select-picker multiple :options>` | Multi/live-search (Tom Select) |
 | `<x-nexus::toggle name label checked>` | Switch |
 | `<x-nexus::search-box name>` `<x-nexus::drop-zone name>` | Search/upload |
@@ -118,4 +131,5 @@ Halaman shell admin: `@extends('nexus::layouts.app')`. Halaman terpusat
 
 `Toast.show(msg,type)`, `Modal.open(id)/close()`, `Confirm.show({message,onConfirm})`,
 `Sidebar.toggle()`, `Tabs/Accordion/Dropdown/Wizard/Lightbox/Carousel` (auto-init),
-`NexusIntegrations.init()` (re-init chart/lib setelah konten dinamis).
+`NexusIntegrations.init()` (re-init chart/lib setelah konten dinamis),
+`NexusBreakpoint.{sm,md,lg}()`, `StackTable.init(root)` (setelah baris tabel ditambah via AJAX).

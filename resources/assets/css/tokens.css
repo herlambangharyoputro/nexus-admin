@@ -58,6 +58,22 @@
   --sidebar-w: 260px;
   --sidebar-w-collapsed: 68px;
   --topbar-h: 64px;
+
+  /* Breakpoint (kontrak responsive v0.5 — GUIDELINES §10).
+     CSS tidak bisa memakai var() di @media, jadi nilai literal 600/900/1200
+     dipakai di media query; token ini sumber kebenaran & dibaca app.js. */
+  --bp-sm: 600px;   /* < 600  : HP — 1 kolom, tabel → kartu, modal penuh layar */
+  --bp-md: 900px;   /* < 900  : tablet — sidebar off-canvas, target sentuh 40px */
+  --bp-lg: 1200px;  /* ≥ 1200 : desktop lebar */
+
+  /* Target sentuh minimum (< 900px) */
+  --touch: 40px;
+
+  /* Lebar kartu halaman (form-page size) */
+  --page-sm: 560px;
+  --page-md: 760px;
+  --page-lg: 1040px;
+  --page-aside: 320px;
 }
 
 /* ── Progressive Enhancement: oklch() for modern browsers ──

@@ -244,4 +244,13 @@
 /* ── Grid helpers (CP9) ─────────────────────────────────── */
 .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-@media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+/* Breakpoint token (tokens.css): grid-3 → 2 kolom < 900px; semua → 1 kolom < 600px */
+.grid-2 > *, .grid-3 > * { min-width: 0; }
+@media (max-width: 899.98px) { .grid-3 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 599.98px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+/* Aksesibilitas: sembunyikan visual, tetap dibaca pembaca layar */
+.sr-only {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}

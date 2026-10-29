@@ -11,7 +11,7 @@
 
 <x-nexus::page-header
     title="Galeri Komponen"
-    description="Verifikasi visual seluruh komponen Nexus Admin v0.2.0.">
+    description="Verifikasi visual seluruh komponen Nexus Admin. Pola halaman v0.5: nexus::pages.demo-index, demo-form, demo-detail.">
     <x-slot:actions>
         <x-nexus::button data-modal-open="demoModal"><x-nexus::icons.plus :size="14" /> Modal</x-nexus::button>
     </x-slot:actions>
